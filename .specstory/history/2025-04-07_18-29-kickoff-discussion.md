@@ -7110,9 +7110,1104 @@ Our current `run_app.py` method doesn't fully solve this problem because it stil
 
 ---
 
-Cancelled
+```diff
+      return 0  # Let streamlit choose a port
+  
++ def check_install_requirements(requirements_path="Requirements.txt"):
++     """Check and install required packages before running the app"""
++     print("Checking Python dependencies...")
++     
++     try:
++         # Check if pip is available
++         subprocess.check_call([sys.executable, "-m", "pip", "--version"], 
++                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++     except (subprocess.CalledProcessError, FileNotFoundError):
++         print("Error: pip is not available. Please ensure pip is installed.")
++         return False
++     
++     # Check for streamlit specifically since it's our main dependency
++     try:
++         subprocess.check_call([sys.executable, "-m", "pip", "show", "streamlit"], 
++                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
++         print("Streamlit is already installed.")
++     except subprocess.CalledProcessError:
++         print("Streamlit not found. Installing dependencies from Requirements.txt...")
++         try:
++             subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", requirements_path])
++             print("Dependencies installed successfully.")
++         except subprocess.CalledProcessError as e:
++             print(f"Failed to install dependencies: {e}")
++             print("Please install requirements manually with: pip install -r Requirements.txt")
++             return False
++     
++     # Check for other dependencies
++     try:
++         with open(requirements_path, 'r') as f:
++             requirements = f.read().strip().split('\n')
++         
++         for req in requirements:
++             if req and not req.startswith('#'):
++                 package = req.split('==')[0].split('>=')[0].strip()
++                 if package.lower() != 'streamlit':  # Skip streamlit as we already checked it
++                     try:
++                         subprocess.check_call(
++                             [sys.executable, "-m", "pip", "show", package],
++                             stdout=subprocess.PIPE, stderr=subprocess.PIPE
++                         )
++                     except subprocess.CalledProcessError:
++                         print(f"Installing {package}...")
++                         subprocess.check_call(
++                             [sys.executable, "-m", "pip", "install", req],
++                             stdout=subprocess.PIPE, stderr=subprocess.PIPE
++                         )
++     except Exception as e:
++         print(f"Error checking dependencies: {e}")
++         print("Continuing anyway, but the application might fail if dependencies are missing.")
++     
++     return True
++ 
+  def main():
++     """Main entry point for the application"""
++     print("\n=== SMITE 2 God Rotation Manager ===\n")
++     
++     # First check and install dependencies
++     if not check_install_requirements():
++         print("Failed to ensure all dependencies are installed. Exiting.")
++         sys.exit(1)
++     
+      # Kill any existing Streamlit processes
+      try:
+      ]
+      
+-     print(f"Starting Streamlit application at http://localhost:{port_arg}")
++     print(f"\nStarting Streamlit application at http://localhost:{port_arg}")
+      print(f"If the browser doesn't open automatically, please open http://localhost:{port_arg}")
+-     print("Press Ctrl+C to exit")
++     print("Press Ctrl+C to exit\n")
+      
+      # Run Streamlit with all output visible
+          print("\nApplication stopped by user.")
+      except Exception as e:
+-         print(f"Error running Streamlit: {e}")
++         print(f"\nError running Streamlit: {e}")
++         print("\nIf you're seeing an error about 'streamlit' not being found, try:")
++         print(f"  {sys.executable} -m pip install streamlit")
++         print("And then run this script again.")
+  
+  if __name__ == "__main__":
+```
 
 ---
+
+Let me test this to make sure it works:
+
+---
+
+```bash
+python run_app.py
+```
+
+```
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6894,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Ravana","item_id":"00000000-0000-0000-0000-000000000147","quantity":1,"in
+ventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_we
+ight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"q
+uantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantit
+y_maximum":0,"legacy_loot_id":6894,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acc
+ount_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:37.355679+00:
+00","created_timestamp":"2025-04-07T20:48:37.355671+00:00","loot_id":"00000000-0000-0000-0000-000000001ae
+e","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001aef
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Scylla",
+  "item_id": "00000000-0000-0000-0000-000000000148",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6895,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Scylla","item_id":"00000000-0000-0000-0000-000000000148","quantity":1,"in
+ventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_we
+ight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"q
+uantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantit
+y_maximum":0,"legacy_loot_id":6895,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acc
+ount_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:37.885718+00:
+00","created_timestamp":"2025-04-07T20:48:37.885710+00:00","loot_id":"00000000-0000-0000-0000-000000001ae
+f","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af0
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Serqet",
+  "item_id": "00000000-0000-0000-0000-000000000149",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6896,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Serqet","item_id":"00000000-0000-0000-0000-000000000149","quantity":1,"in
+ventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_we
+ight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"q
+uantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantit
+y_maximum":0,"legacy_loot_id":6896,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acc
+ount_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:38.411583+00:
+00","created_timestamp":"2025-04-07T20:48:38.411572+00:00","loot_id":"00000000-0000-0000-0000-000000001af
+0","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af1
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Set",
+  "item_id": "00000000-0000-0000-0000-00000000014a",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6897,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Set","item_id":"00000000-0000-0000-0000-00000000014a","quantity":1,"inven
+tory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_weigh
+t":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"quan
+tity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity_m
+aximum":0,"legacy_loot_id":6897,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_accoun
+t_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:38.930864+00:00"
+,"created_timestamp":"2025-04-07T20:48:38.930854+00:00","loot_id":"00000000-0000-0000-0000-000000001af1",
+"vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af2
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Shiva",
+  "item_id": "00000000-0000-0000-0000-00000000014b",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6898,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Shiva","item_id":"00000000-0000-0000-0000-00000000014b","quantity":1,"inv
+entory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_wei
+ght":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qu
+antity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity
+_maximum":0,"legacy_loot_id":6898,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acco
+unt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:39.443028+00:0
+0","created_timestamp":"2025-04-07T20:48:39.443020+00:00","loot_id":"00000000-0000-0000-0000-000000001af2
+","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af3
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Skadi",
+  "item_id": "00000000-0000-0000-0000-00000000014c",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6899,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Skadi","item_id":"00000000-0000-0000-0000-00000000014c","quantity":1,"inv
+entory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_wei
+ght":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qu
+antity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity
+_maximum":0,"legacy_loot_id":6899,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acco
+unt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:39.944167+00:0
+0","created_timestamp":"2025-04-07T20:48:39.944158+00:00","loot_id":"00000000-0000-0000-0000-000000001af3
+","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af4
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Sun Wukong",
+  "item_id": "00000000-0000-0000-0000-00000000014f",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6900,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Sun Wukong","item_id":"00000000-0000-0000-0000-00000000014f","quantity":1
+,"inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"dro
+p_weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":
+0,"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_qua
+ntity_maximum":0,"legacy_loot_id":6900,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified
+_account_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:40.470128
++00:00","created_timestamp":"2025-04-07T20:48:40.470121+00:00","loot_id":"00000000-0000-0000-0000-0000000
+01af4","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af5
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Surtr",
+  "item_id": "00000000-0000-0000-0000-000000000150",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6901,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Surtr","item_id":"00000000-0000-0000-0000-000000000150","quantity":1,"inv
+entory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_wei
+ght":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qu
+antity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity
+_maximum":0,"legacy_loot_id":6901,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acco
+unt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:40.990048+00:0
+0","created_timestamp":"2025-04-07T20:48:40.990040+00:00","loot_id":"00000000-0000-0000-0000-000000001af5
+","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af6
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Sylvanus",
+  "item_id": "00000000-0000-0000-0000-000000000152",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6902,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Sylvanus","item_id":"00000000-0000-0000-0000-000000000152","quantity":1,"
+inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_
+weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,
+"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quant
+ity_maximum":0,"legacy_loot_id":6902,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_a
+ccount_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:41.577614+0
+0:00","created_timestamp":"2025-04-07T20:48:41.577606+00:00","loot_id":"00000000-0000-0000-0000-000000001
+af6","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af7
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Terra",
+  "item_id": "00000000-0000-0000-0000-000000000153",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6903,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Terra","item_id":"00000000-0000-0000-0000-000000000153","quantity":1,"inv
+entory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_wei
+ght":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qu
+antity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity
+_maximum":0,"legacy_loot_id":6903,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acco
+unt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:42.199052+00:0
+0","created_timestamp":"2025-04-07T20:48:42.199042+00:00","loot_id":"00000000-0000-0000-0000-000000001af7
+","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af8
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Thoth",
+  "item_id": "00000000-0000-0000-0000-000000000156",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6904,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Thoth","item_id":"00000000-0000-0000-0000-000000000156","quantity":1,"inv
+entory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_wei
+ght":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qu
+antity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity
+_maximum":0,"legacy_loot_id":6904,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acco
+unt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:42.787197+00:0
+0","created_timestamp":"2025-04-07T20:48:42.787188+00:00","loot_id":"00000000-0000-0000-0000-000000001af8
+","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001af9
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Tiamet",
+  "item_id": "00000000-0000-0000-0000-000000000157",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6905,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Tiamet","item_id":"00000000-0000-0000-0000-000000000157","quantity":1,"in
+ventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_we
+ight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"q
+uantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantit
+y_maximum":0,"legacy_loot_id":6905,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acc
+ount_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:43.300685+00:
+00","created_timestamp":"2025-04-07T20:48:43.300676+00:00","loot_id":"00000000-0000-0000-0000-000000001af
+9","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001afa
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Tsukuyomi",
+  "item_id": "00000000-0000-0000-0000-000000000158",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6906,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Tsukuyomi","item_id":"00000000-0000-0000-0000-000000000158","quantity":1,
+"inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop
+_weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0
+,"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quan
+tity_maximum":0,"legacy_loot_id":6906,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_
+account_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:43.819081+
+00:00","created_timestamp":"2025-04-07T20:48:43.819063+00:00","loot_id":"00000000-0000-0000-0000-00000000
+1afa","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001afb
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Tyr",
+  "item_id": "00000000-0000-0000-0000-000000000159",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6907,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Tyr","item_id":"00000000-0000-0000-0000-000000000159","quantity":1,"inven
+tory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_weigh
+t":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"quan
+tity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity_m
+aximum":0,"legacy_loot_id":6907,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_accoun
+t_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:44.398492+00:00"
+,"created_timestamp":"2025-04-07T20:48:44.398483+00:00","loot_id":"00000000-0000-0000-0000-000000001afb",
+"vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001afc
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Ullr",
+  "item_id": "00000000-0000-0000-0000-00000000015a",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6908,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Ullr","item_id":"00000000-0000-0000-0000-00000000015a","quantity":1,"inve
+ntory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_weig
+ht":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qua
+ntity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity_
+maximum":0,"legacy_loot_id":6908,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_accou
+nt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:44.963900+00:00
+","created_timestamp":"2025-04-07T20:48:44.963891+00:00","loot_id":"00000000-0000-0000-0000-000000001afc"
+,"vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001afd
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Vanmana",
+  "item_id": "00000000-0000-0000-0000-00000000015b",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6909,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Vanmana","item_id":"00000000-0000-0000-0000-00000000015b","quantity":1,"i
+nventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_w
+eight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"
+quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quanti
+ty_maximum":0,"legacy_loot_id":6909,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_ac
+count_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:45.535835+00
+:00","created_timestamp":"2025-04-07T20:48:45.535827+00:00","loot_id":"00000000-0000-0000-0000-000000001a
+fd","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001afe
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Vulcan",
+  "item_id": "00000000-0000-0000-0000-00000000015c",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6910,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Vulcan","item_id":"00000000-0000-0000-0000-00000000015c","quantity":1,"in
+ventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_we
+ight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"q
+uantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantit
+y_maximum":0,"legacy_loot_id":6910,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acc
+ount_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:46.088241+00:
+00","created_timestamp":"2025-04-07T20:48:46.088233+00:00","loot_id":"00000000-0000-0000-0000-000000001af
+e","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001aff
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Xbalanque",
+  "item_id": "00000000-0000-0000-0000-00000000015d",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6911,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Xbalanque","item_id":"00000000-0000-0000-0000-00000000015d","quantity":1,
+"inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop
+_weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0
+,"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quan
+tity_maximum":0,"legacy_loot_id":6911,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_
+account_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:46.622611+
+00:00","created_timestamp":"2025-04-07T20:48:46.622603+00:00","loot_id":"00000000-0000-0000-0000-00000000
+1aff","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001b00
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Xing Tian",
+  "item_id": "00000000-0000-0000-0000-00000000015e",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6912,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Xing Tian","item_id":"00000000-0000-0000-0000-00000000015e","quantity":1,
+"inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop
+_weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0
+,"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quan
+tity_maximum":0,"legacy_loot_id":6912,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_
+account_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:47.144101+
+00:00","created_timestamp":"2025-04-07T20:48:47.144092+00:00","loot_id":"00000000-0000-0000-0000-00000000
+1b00","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001b01
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Yu Huang",
+  "item_id": "00000000-0000-0000-0000-000000000160",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6913,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Yu Huang","item_id":"00000000-0000-0000-0000-000000000160","quantity":1,"
+inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_
+weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,
+"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quant
+ity_maximum":0,"legacy_loot_id":6913,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_a
+ccount_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:47.700302+0
+0:00","created_timestamp":"2025-04-07T20:48:47.700282+00:00","loot_id":"00000000-0000-0000-0000-000000001
+b01","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001b02
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Zhong Kui",
+  "item_id": "00000000-0000-0000-0000-000000000161",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6914,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Zhong Kui","item_id":"00000000-0000-0000-0000-000000000161","quantity":1,
+"inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop
+_weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0
+,"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quan
+tity_maximum":0,"legacy_loot_id":6914,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_
+account_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:48.294031+
+00:00","created_timestamp":"2025-04-07T20:48:48.294022+00:00","loot_id":"00000000-0000-0000-0000-00000000
+1b02","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001b06
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Cupid",
+  "item_id": "00000000-0000-0000-0000-00000000010e",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6918,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Cupid","item_id":"00000000-0000-0000-0000-00000000010e","quantity":1,"inv
+entory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_wei
+ght":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qu
+antity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity
+_maximum":0,"legacy_loot_id":6918,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acco
+unt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:48.798796+00:0
+0","created_timestamp":"2025-04-07T20:48:48.798789+00:00","loot_id":"00000000-0000-0000-0000-000000001b06
+","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001b07
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Bake Kujira",
+  "item_id": "00000000-0000-0000-0000-0000000000ff",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6919,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Bake Kujira","item_id":"00000000-0000-0000-0000-0000000000ff","quantity":
+1,"inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"dr
+op_weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit"
+:0,"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_qu
+antity_maximum":0,"legacy_loot_id":6919,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modifie
+d_account_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:49.31589
+7+00:00","created_timestamp":"2025-04-07T20:48:49.315889+00:00","loot_id":"00000000-0000-0000-0000-000000
+001b07","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001b08
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Atlas",
+  "item_id": "00000000-0000-0000-0000-0000000000fb",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6920,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Atlas","item_id":"00000000-0000-0000-0000-0000000000fb","quantity":1,"inv
+entory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop_wei
+ght":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0,"qu
+antity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quantity
+_maximum":0,"legacy_loot_id":6920,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_acco
+unt_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:49.836143+00:0
+0","created_timestamp":"2025-04-07T20:48:49.836134+00:00","loot_id":"00000000-0000-0000-0000-000000001b08
+","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+
+--- RallyHere API Request ---
+URL: https://developer.rallyhere.gg/api/v1/sandbox/5641ab90-cbee-4460-ad6d-e3bc1545adb3/loot/00000000-000
+0-0000-0000-000000001b09
+Method: PUT
+Headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ***'}
+Data: {
+  "custom_data": {},
+  "name": "Chernobog",
+  "item_id": "00000000-0000-0000-0000-000000000108",
+  "quantity": 1,
+  "inventory_selector_type": "own_transient",
+  "inventory_operation": "add",
+  "active": false,
+  "sort_order": 0,
+  "drop_weight": 0,
+  "fill_in_new_order": false,
+  "allow_partial_bundles": true,
+  "required_item_count": 0,
+  "stack_limit": 0,
+  "quantity_type": "relative",
+  "is_claimable_by_client": false,
+  "xp_quantity_transform_type": "none",
+  "hard_quantity_maximum": 0,
+  "legacy_loot_id": 6921,
+  "vendor_id": "00000000-0000-0000-0000-00000000004e"
+}
+---------------------------
+
+--- RallyHere API Response ---
+Status: 200
+Body: {"custom_data":{},"name":"Chernobog","item_id":"00000000-0000-0000-0000-000000000108","quantity":1,
+"inventory_selector_type":"own_transient","inventory_operation":"add","active":false,"sort_order":0,"drop
+_weight":0,"fill_in_new_order":false,"allow_partial_bundles":true,"required_item_count":0,"stack_limit":0
+,"quantity_type":"relative","is_claimable_by_client":false,"xp_quantity_transform_type":"none","hard_quan
+tity_maximum":0,"legacy_loot_id":6921,"sandbox_id":"5641ab90-cbee-4460-ad6d-e3bc1545adb3","last_modified_
+account_id":"637b39f9-45cf-42a1-a966-1b63c9e689be","last_modified_timestamp":"2025-04-07T20:48:50.356727+
+00:00","created_timestamp":"2025-04-07T20:48:50.356718+00:00","loot_id":"00000000-0000-0000-0000-00000000
+1b09","vendor_id":"00000000-0000-0000-0000-00000000004e"}
+----------------------------
+Application started successfully
+```
+
+---
+
+
+
+---
+
+_**User**_
+
+Yup, that worked.
+
+Okay, now that we have a stable version committed to github, is there anything you can think of to productize this that I should take into account or that might make this more useful for myself and colleagues who will use this.  It's a fairly targeted tool, so it doesn't need a lot of extra hand holding, but I wanted to ask in case you have any additional ideas.
+
+---
+
+_**Assistant**_
 
 
 
