@@ -1,0 +1,295 @@
+Get Vendor By Id
+GET
+/api/v1/sandbox/:sandbox_id/vendor/:vendor_id
+Get Vendor by ID. Requires any of permissions: sandbox:config:view, sandbox:config:edit
+
+Request
+Path Parameters
+
+vendor_id
+uuid
+required
+Vendor ID
+
+sandbox_id
+uuid
+required
+Sandbox ID
+
+Responses
+200
+422
+Successful Response
+
+application/json
+Schema
+Example (from schema)
+Schema
+
+custom_data
+
+object
+
+name
+Name (string)
+Possible values: non-empty and <= 125 characters
+
+Name of the resource
+
+description
+Description (string)
+Possible values: <= 250 characters
+
+Description of the resource
+
+last_modified_account_id
+uuid
+Account ID of the user who last modified the resource
+
+last_modified_timestamp
+date-time
+Timestamp of when the resource was last modified
+
+created_timestamp
+date-time
+Timestamp of when the resource was created
+
+sandbox_id
+uuid
+ID of the Sandbox
+
+vendor_id
+uuid
+required
+The ID of the Vendor.
+
+legacy_vendor_id
+Legacy Vendor Id (integer)
+Default value: 0
+
+The legacy ID of the Vendor.
+
+vendor_type
+Vendor Type (string)
+Possible values: [recipe, randomly_sampled]
+
+Determine how the Vendor fulfills the Loot.
+
+loot
+
+object[]
+
+The Loot the Vendor will fulfill.
+
+Array [
+
+custom_data
+
+object
+
+name
+Name (string)
+Possible values: non-empty and <= 125 characters
+
+Name of the resource
+
+description
+Description (string)
+Possible values: <= 250 characters
+
+Description of the resource
+
+item_id
+uuid
+The Item ID. Optional Item that will be granted to the player if Sub Vendor ID is not specified.
+
+sub_vendor_id
+uuid
+The Sub Vendor ID. Optional Vendor ID that will be used to fulfill the Loot instead of granting the Item.
+
+quantity
+Quantity (integer)
+Default value: 1
+
+The quantity of the Item or Sub Vendor to fulfill. This will be multiplied by the quantity of fulfilled Loot and the parent Loot if quantity_type is relative.
+
+inventory_selector_type
+Inventory Selector (string)
+required
+Possible values: [own, rent, rent_timeframe_locked, own_transient, inherit_entitlement_inventory]
+
+Determines way Inventory is selected and how it is to be modified.
+
+inventory_operation
+Inventory Operation (string)
+required
+Possible values: [add, subtract, set, check_greater_than_or_equal, check_less_than, check_greater_than_or_equal_and_subtract]
+
+Determines how the Inventory Quantity will be acted upon and the sort order of Loot in a Vendor if the Loot has the same sort order.
+
+Sort Order:
+
+check_greater_then_or_equal/check_less_than
+check_greater_than_or_equal_and_subtract/subtract
+add/set
+active
+Active (boolean)
+Determines if the Loot is active. Inactive Loot will not be fulfilled.
+
+sort_order
+Sort Order (integer)
+Default value: 0
+
+The sort order of the Loot. Lower sort order will be fulfilled first. Inventory Operation is used as a tie breaker when sort_order is the same.
+
+drop_weight
+Drop Weight (integer)
+Default value: 0
+
+The drop weight of the Loot. Higher drop weight will be more likely to be fulfilled.
+
+fill_in_new_order
+Fill In New Order (boolean)
+When dropped in a randomly sampled vendor, will this create a new order or fill inline?. The primary use case for this is when you want the same loot to be dropped multiple times in a randomly sampled vendor.
+
+allow_partial_bundles
+Allow Partial Bundles (boolean)
+Default value: true
+
+When dropped in a randomly sampled vendor, will the sub vendor allow dropping part of the the bundle? False means it will only drop if the entire sub vendor can be given to the player
+
+required_item_id
+uuid
+Item required to be owned/rented to drop this Loot in a randomly sampled vendor
+
+required_item_count
+Required Item Count (integer)
+Default value: 0
+
+Amount of the required_item_id to be owned/rented to drop this Loot in a randomly sampled vendor
+
+stack_limit
+Stack Limit (integer)
+Default value: 0
+
+Amount of owned/rented of this Loot's item that will prevent this Loot from dropping in a randomly sampled vendor
+
+quantity_type
+Quantity Type (string)
+Possible values: [relative, absolute]
+
+Determines how the quantity is to be modified.
+
+Relative looks at the context in which is fulfilled; e.g. If Loot A has a quantity of 2 and 5 is being fulfill, the resulting quantity modification will be 10.
+
+Absolute ignores the context in which it is fulfilled; e.g. If Loot B has a quantity of 3 and 5 is being fulfill 5, the resulting quantity modification will be 3.
+
+quantity_multi_inventory_item_id
+uuid
+When fulfilling Loot if this is set the quantity will be multiplied by the quantity of this Item in the Player's Inventory.
+
+is_claimable_by_client
+Is Claimable By Client (boolean)
+Determines if the Loot can be claimed by the client. This is dangerous without the correct loot confiuration as a client could claim Loot multiple times.
+
+legacy_time_frame_id
+Legacy Time Frame Id (integer)
+The Time Frame ID. Optional Time Frame ID that will be used for the expiration of inventory records when Loot when it is fulfilled.
+
+time_frame_id
+uuid
+The Time Frame ID. Optional Time Frame ID that will be used for the expiration of inventory records when Loot when it is fulfilled.
+
+use_inventory_bucket
+Inventory Bucket (string)
+Possible values: [free, sweat, none, anon, amazon, steam, psn, xbox_live, google, twitch, nintendo_switch, apple, nintendo, epic, google_play, nintendo_ppid]
+
+Grouping of Inventory Items. Inventory items are grouped into different buckets as each Platform that is supported has different requirements on how Inventory can be used on their Platform and other Platforms.
+
+xp_quantity_transform_type
+XP Quantity Transform (string)
+Possible values: [none, from_current_xp_to_target_additional_level_min_xp, from_current_level_min_xp_to_target_additional_level_min_xp, from_zero_to_target_exact_level_min_xp]
+
+Allows granting xp levels as Loot. If the player is already max level, the Loot will not be fulfilled. Requires the Item assigned to the Loot to have an XP Table ID.
+
+The following examples assume the player is level 3 with 150 total xp. The quantity configured on the Loot being fulfilled is 1. The XP Table is configured like so: 1: 20 2: 50 3: 100 4: 200 5: 400
+
+from_current_xp_to_target_additional_level_min_xp - The Loot will grant the player enough xp to reach min xp of the next level. Example 1: fulfill quantity 1 Player will be level 4 with 200 total xp. Example 2: fulfill quantity 2 Player will be level 5 with 400 total xp. Example 3: fulfill quantity 3 Player will be level 5 with 400 total xp.
+
+from_current_level_min_xp_to_target_additional_level_min_xp - The Loot will grant the player the amount of xp required to reach the min xp of the next level from the min xp of the current level. Example 1: fulfill quantity 1 Player will be level 4 with 250 total xp. Example 2: fulfill quantity 2 Player will be level 5 with 450 total xp. Example 3: fulfill quantity 3 Player will be level 5 with 450 total xp.
+
+from_zero_to_target_exact_level_min_xp - The Loot will grant the player the amount of xp required to reach the min xp of the target level from zero xp. Example 1: fulfill quantity 1 Player will be level 3 with 170 total xp. Example 2: fulfill quantity 2 Player will be level 4 with 200 total xp. Example 3: fulfill quantity 3 Player will be level 4 with 250 total xp.
+
+current_price_point_id
+uuid
+The current price point id. Optional Price Point ID that will be used to determine the price of the Loot when it is fulfilled.
+
+pre_sale_price_point_id
+uuid
+The pre sale price point id. Optional Price Point ID that will be used to show the previous price of the Loot.
+
+hard_quantity_maximum
+Hard Quantity Maximum (integer)
+Default value: 0
+
+Hard cap on quantity of an item this Loot can give. Disabled with 0
+
+legacy_loot_id
+Legacy Loot Id (integer)
+Default value: 0
+
+The legacy ID of the Loot.
+
+sandbox_id
+uuid
+ID of the Sandbox
+
+last_modified_account_id
+uuid
+Account ID of the user who last modified the resource
+
+last_modified_timestamp
+date-time
+Timestamp of when the resource was last modified
+
+created_timestamp
+date-time
+Timestamp of when the resource was created
+
+loot_id
+uuid
+required
+The Loot ID
+
+vendor_id
+uuid
+required
+The Vendor ID
+
+vendor_name
+Vendor Name (string)
+Name corresponding Vendor ID
+
+sub_vendor_name
+Sub Vendor Name (string)
+Name corresponding Sub-Vendor ID
+
+item_name
+Item Name (string)
+Name corresponding Item ID
+
+required_item_name
+Required Item Name (string)
+Name corresponding Required Item ID
+
+quantity_multi_inventory_item_name
+Quantity Multi Inventory Item Name (string)
+Name corresponding Quantity Multi Inventory Item ID
+
+current_price_point_name
+Current Price Point Name (string)
+Name corresponding Current Price Point ID
+
+pre_sale_price_point_name
+Pre Sale Price Point Name (string)
+Name corresponding Pre-sale Price Point ID

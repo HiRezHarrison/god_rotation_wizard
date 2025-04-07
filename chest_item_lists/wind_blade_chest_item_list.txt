@@ -1,9 +1,0 @@
-Skin - Susano - [Stumble Blade] - S2E - 01A - T2	00000000-0000-0000-0000-000000000b0d
-Skin - Mulan - [High Honor] - CG - 02A - T2	00000000-0000-0000-0000-000000000ef5
-Skin - Hades - [Oni King] - CG - 02A - T3	00000000-0000-0000-0000-0000000002bf
-Skin - Awilix - [Cyberclaw] - CG - 01A - T2	00000000-0000-0000-0000-000000000ef6
-Skin - Athena - [Steel Sentry] - CG - 01A - T4	00000000-0000-0000-0000-000000000164
-Skin - Sol - [Firefly] - CG - 01A - T2	00000000-0000-0000-0000-000000000167
-Skin - Poseidon - [Phantom Prince] - CG - 01A - T3	00000000-0000-0000-0000-0000000002d8
-Skin - Amaterasu - [Foxy] - C - 02A - T3	00000000-0000-0000-0000-000000000afc
-Skin - Ares - [Tokyo Knight] - C - 02A - T3	00000000-0000-0000-0000-000000000336

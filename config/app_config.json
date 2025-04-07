@@ -6,7 +6,9 @@
             "account": "v2/account/me",
             "items": "v1/sandbox/{sandbox_id}/item",
             "vendors": "v1/sandbox/{sandbox_id}/vendor",
-            "loots": "v1/sandbox/{sandbox_id}/loot"
+            "vendor_by_id": "v1/sandbox/{sandbox_id}/vendor/{vendor_id}",
+            "loots": "v1/sandbox/{sandbox_id}/loot",
+            "loot_by_id": "v1/sandbox/{sandbox_id}/loot/{loot_id}"
         },
         "timeout": 30,
         "retry_attempts": 3
@@ -27,17 +29,18 @@
     },
     "logging": {
         "log_directory": "logs",
-        "log_file_prefix": "chest_creation_"
+        "log_file_prefix": "god_rotation_"
     },
     "ui": {
         "window_size": "600x400",
         "font_size": 10,
         "padding": 10,
-        "title": "SMITE 2 Treasure Chest Creation Wizard",
+        "title": "SMITE 2 God Rotation Manager",
         "screen_titles": {
-            "screen1": "Enter Chest Details",
-            "screen2": "Enter Authentication",
-            "screen3": "Creation Progress"
+            "screen1": "Welcome",
+            "screen2": "Configuration",
+            "screen3": "God Selection",
+            "screen4": "Progress & Results"
         }
     }
 }
