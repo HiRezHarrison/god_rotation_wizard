@@ -1,0 +1,13 @@
+Skin - Odin - [Winged Terror] - CG - 03A - T4	00000000-0000-0000-0000-00000000034a
+Skin - Amaterasu - [Honor Roll] - CG - 01A - T3	00000000-0000-0000-0000-000000000814
+Skin - Cupid - [Court Archer] - CG - 01A - T2	00000000-0000-0000-0000-000000000b12
+Skin - Ares - [Gleaming Defender] - CG - 01A - T4	00000000-0000-0000-0000-000000000168
+Skin - Cernunnos - [Headhunter] - CG - 01A - T2	00000000-0000-0000-0000-00000000007d
+Skin - Chaac - [Charred Soul] - CG - 03A - T3	00000000-0000-0000-0000-0000000002bd
+Skin - Fenrir - [The Undead] - CG - 01A - T2	00000000-0000-0000-0000-000000000013
+Skin - Hades - [Oni King] - CG - 02A - T3	00000000-0000-0000-0000-0000000002bf
+Skin - Hercules - [La Roca] - C - 03A - T1	00000000-0000-0000-0000-000000000aed
+Skin - Izanami - [Nightmare Nurse] - CG - 02A - T2	00000000-0000-0000-0000-000000000170
+Skin - Loki - [Slasher] - CG - 02A - T2	00000000-0000-0000-0000-000000000016
+Skin - Neith - [Heavenly Light] - CG - 02A - T3	00000000-0000-0000-0000-0000000002c9
+Skin - Thanatos - [Biblical Horror] - CG - 02A - T2	00000000-0000-0000-0000-000000000720

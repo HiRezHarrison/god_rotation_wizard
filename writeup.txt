@@ -1,0 +1,59 @@
+Need to develop a program to do the following:
+
+Call a company API repeatedly to perform different steps in the configuration process for digital assets.  
+
+To do that, the program will need to be able to:
+ * Provide a relatively simple UI as outlined in the attached ui_outline.txt
+ * Make API calls against @https://developer.rallyhere.gg/api/ 
+ * Store the returns of multiple API calls and parse them to fill out the following json bodies in order to make subsequent calls
+ * Parse a text file to determine item_ids and item_names
+ * Make the calls in the correct order with the correct connections
+
+
+
+Steps are as follows:
+ * I will provide text file that is a list of item_ids and associated item_names in one of two formats, either:
+
+Skin - Odin - [Hot Dog] - C - 02A - T
+00000000-0000-0000-0000-0000000002cc
+Skin - Loki - [Joki] - C - 03A - T2
+00000000-0000-0000-0000-0000000002e3
+
+OR
+
+Fenrir	The Undead	CG	Skin - Fenrir - [The Undead] - CG - 01A - T2	00000000-0000-0000-0000-000000000013
+Hades	Oni King	CG	Skin - Hades - [Oni King] - CG - 02A - T3	00000000-0000-0000-0000-0000000002bf
+Nu Wa	Dark Supreme	CG	Skin - Nu Wa - [Dark Supreme] - CG - 01A - T2	00000000-0000-0000-0000-000000000ef2
+Baron Samedi	Nano-Mancer	CG	Skin - Baron Samedi - [Nano-Mancer] - CG - 01A - T1	00000000-0000-0000-0000-000000000af7
+
+
+
+In the first case, the parsing needs to do the following:
+ * The API JSON structure will require the item_id (the guid) in its entirety in order to connect each item to a given loot that we will be creating.  This wil lbe the same for both text structures
+ * The second portion is dealing with the name.  In the first format you'll notice that you only get the following "Skin - Odin - [Hot Dog] - C - 02A - T".  This is included in the second format, but the second format essentially has what we want the final parsed version to be:  <column one> + ' - ' + <column two>  
+
+So here you would have "Odin - Hot Dog" and "Loki - Joki" from the first set, and "Fenrir - The Undead", "Nu Wa - Dark Supreme", and "Baron Samedi - Nano Mancer" from the second set.
+
+
+
+
+Once the text file is parsed and the variables stored and prepared, we're ready to begin API calls.  For a normal chest, chest creation follows the following process:
+
+ * Chest Item Creation <--Item creation API (need to store & log the generated item_id)
+ * Chest Choice Vendor Creation <--One Vendor Creation API (need to store & log the generated Choice Vendor vendor_id)
+ * Chest Content Vendor Creation <--One Vendor Creation API (need to store & log the generated Content Vendor vendor_id)
+ * Chest Vendor to Choice Loot Creation <--One Loot creation API (need to log the generated chest vendor loot_id)
+ * Chest Choice to Content Loot Creation <--One Loot creation API (need to log the generated choice vendor loot_id)
+ * Chest Content Loot Creation <--Loot creation API called once per item in the text file we parsed earlier (need to loge the generated content vendor loot_ids)
+
+For a bonus chest, the steps are very similar, with one or two changes:
+ * Bonus Chest Item Creation <--Item creation API (need to store & log the generated item_id)
+ * Chest CHANCE Vendor Creation <--One Vendor Creation API (need to store & log the generated CHANCE Vendor vendor_id)
+ * Chest Vendor to CHANCE Loot Creation <--One Loot creation API (need to log the generated chest vendor loot_id)
+ * Chest Choice to Content Loot Creation <--One Loot creation API (need to log the generated choice vendor loot_id)
+ * Chest Zero Percent Drop Loot Creation <--One Loot creation using the details from the Zero Percent info the user added on Screen 1 of the program (need to log and generat the loot_id, loot_name, item_id, and quantity)
+
+
+It should be noted that the BONUS chest uses the same CONTENT VENDOR as the Normal Chest.  So we don't have to create two content vendors, or any of the loots inside them.  And we need to remember the content vendor vendor_id for both of these steps if a Bonus chest is being created.
+
+

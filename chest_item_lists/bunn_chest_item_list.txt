@@ -1,0 +1,9 @@
+Skin - Nu Wa - [Goth Bunny] - S2E - ??? - T2	00000000-0000-0000-0000-000000001072
+Skin - Hecate - [Lunar Hex] - S2E - 01A - T	00000000-0000-0000-0000-0000000002c0
+Skin - Kukulkan - [Cosmic Moth] - S2E - 02A - T3	00000000-0000-0000-0000-000000000341
+Skin - Bacchus - [Dapper Catter] - CG - 02A - T4	00000000-0000-0000-0000-00000000007a
+Skin - Artemis - [Fletched Faun] - CG - 01A - T2	00000000-0000-0000-0000-000000000f00
+Skin - Yemoja - [Dawn Spirit] - CG - 01A - T3	00000000-0000-0000-0000-000000000afa
+Skin - Fenrir - [Mighty Mutt] - CG - 02A - T2	00000000-0000-0000-0000-0000000002be
+Skin - Sobek - [Lil Bites] - CG - 01A - T2	00000000-0000-0000-0000-000000000b16
+Skin - Ymir - [Mr. Squish] - CG - 04A - T3	00000000-0000-0000-0000-0000000002d6

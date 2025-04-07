@@ -1,0 +1,379 @@
+Let's pull out the user_account_id.
+
+Some other people may use this as well.  We'll start with a call to get the user_account_id, so that will need to be another api call as well.  how does this look for that?
+
+Also, I noticed that we're missing some information in the loot section -- specifically we aren't specifying the loot and sub_vendor information in the loots: { section of the api_template.json.  I've added the information that would be needed in the section below. Can you make recommendations on updating the file?
+
+We'll have to add a step in the code -- one additional API call between screen 1 and screen 2.
+
+
+By the way, here all the API calls, in order with what we're doing / on the relevant screen:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SCREEN 1 -
+ * Nothing
+
+SCREEN 2 - 
+ * When user pushes continue:
+GET
+@https://developer.rallyhere.gg/api/v2/account/me 
+Authorization is the bearer token
+Return is:
+
+{
+    "org_id": "1806a824-d204-41f2-b411-ffe5beb1b624",
+    "account_id": "637b39f9-45cf-42a1-a966-1b63c9e689be",
+    "account_email": "bharrison@hirezstudios.com"
+}
+
+
+
+Then we get to screen 2:
+
+
+"Chest Item Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/item 
+
+JSON PAYLOAD:
+{
+	"data": [
+	{
+	    "custom_data": {},
+		"name": "{name} Chest"
+		"description": "Treasure Box",
+		"item_type": "recipe",
+		"coupon_consume_on_use": false,
+		"coupon_discount_loot": [],
+		"total_ownership_max": 0,
+		"sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+		"last_modified_account_id": <user_account>,
+		"last_modified_timestamp": <current_utc>
+	{
+		]
+}
+
+
+"Treasure Choice Vendor Created" 
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/vendor 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name_template": "Treasure Box: {name} Choice Vendor",
+    "description": "Vendor for choice recipe if applicable",
+    "last_modified_account_id": <user_account>,
+    "last_modified_timestamp": <current_utc>,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "vendor_type": "recipe",
+    "loot": []
+        }       
+    ]
+}
+
+
+"Treasure Content Vendor Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/vendor 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name_template": "Treasure Box: {name} Content Vendor",
+    "description": "Content Vendor - Currently only one of these.",
+    "last_modified_account_id": <user_account>,
+    "last_modified_timestamp": <current_utc>,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "vendor_type": "randomly_sampled",
+    "loot": []
+        }       
+    ]
+}
+
+
+
+
+"Treasure Box to Choice Loot Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/loot 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name": "{name}",
+	"item_id": <normal_chest_item_id>,
+    "sub_vendor_id": <choice_vendor_id>,
+    "quantity": 1,
+    "inventory_selector_type": "own",
+    "inventory_operation": "add",
+    "active": true,
+    "sort_order": 0,
+    "drop_weight": 0,
+    "fill_in_new_order": false,
+    "allow_partial_bundles": true,
+    "required_item_count": 0,
+    "stack_limit": 0,
+    "quantity_type": "relative",
+    "is_claimable_by_client": false,
+    "xp_quantity_transform_type": "none",
+    "hard_quantity_maximum": 0,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "last_modified_account_id": <account_id>,
+    "last_modified_timestamp": <current_utc>,
+    "vendor_id": "00000000-0000-0000-0000-000000000516"
+		}       
+    ]
+}
+
+
+
+
+"Treasure Choice to Content Loot Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/loot 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name": "Treasure Box: {name} Content Vendor",
+	"item_id": [],
+    "sub_vendor_id": <content_vendor_id>,
+    "quantity": 1,
+    "inventory_selector_type": "own",
+    "inventory_operation": "add",
+    "active": true,
+    "sort_order": 0,
+    "drop_weight": 100,
+    "fill_in_new_order": false,
+    "allow_partial_bundles": true,
+    "required_item_count": 0,
+    "stack_limit": 0,
+    "quantity_type": "relative",
+    "is_claimable_by_client": false,
+    "xp_quantity_transform_type": "none",
+    "hard_quantity_maximum": 0,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "last_modified_account_id": <account_id>,
+    "last_modified_timestamp": <current_utc>,
+    "vendor_id": <choice_vendor_id>
+		}       
+    ]
+}
+
+
+
+
+"Treasure Content Loots Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/loot 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name": "{item_name}",
+	"item_id": <item_id>,
+    "sub_vendor_id": [],
+    "quantity": 1,
+    "inventory_selector_type": "own",
+    "inventory_operation": "add",
+    "active": true,
+    "sort_order": 0,
+    "drop_weight": 5,
+    "fill_in_new_order": false,
+    "allow_partial_bundles": true,
+    "required_item_count": 0,
+    "stack_limit": 1,
+    "quantity_type": "relative",
+    "is_claimable_by_client": false,
+    "xp_quantity_transform_type": "none",
+    "hard_quantity_maximum": 0,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "last_modified_account_id": <account_id>,
+    "last_modified_timestamp": <current_utc>,
+    "vendor_id": <choice_vendor_id>
+		}       
+    ]
+}
+
+
+
+
+"Bonus Chest Item Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/item 
+
+JSON PAYLOAD:
+{
+	"data": [
+	{
+	    "custom_data": {},
+		"name": "{name} Chest - BONUS"
+		"description": "Treasure Box",
+		"item_type": "recipe",
+		"coupon_consume_on_use": false,
+		"coupon_discount_loot": [],
+		"total_ownership_max": 0,
+		"sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+		"last_modified_account_id": <user_account>,
+		"last_modified_timestamp": <current_utc>
+	{
+		]
+}
+
+
+
+"Treasure BONUS Chance Vendor Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/vendor 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name_template": "Treasure Box: {name} BONUS Chance Vendor",
+    "description": "Vendor for chance buckets",
+    "last_modified_account_id": <user_account>,
+    "last_modified_timestamp": <current_utc>,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "vendor_type": "randomly_sampled",
+    "loot": []
+        }       
+    ]
+}
+
+
+
+
+"BONUS Treasure Box to Chance Loot Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/loot 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name": "{name}",
+	"item_id": <bonus_chest_item_id>,
+    "sub_vendor_id": <chance_vendor_id>,
+    "quantity": 1,
+    "inventory_selector_type": "own",
+    "inventory_operation": "add",
+    "active": true,
+    "sort_order": 0,
+    "drop_weight": 0,
+    "fill_in_new_order": false,
+    "allow_partial_bundles": true,
+    "required_item_count": 0,
+    "stack_limit": 0,
+    "quantity_type": "relative",
+    "is_claimable_by_client": false,
+    "xp_quantity_transform_type": "none",
+    "hard_quantity_maximum": 0,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "last_modified_account_id": <account_id>,
+    "last_modified_timestamp": <current_utc>,
+    "vendor_id": "00000000-0000-0000-0000-000000000517"
+		}       
+    ]
+}
+
+
+
+
+"Treasure Chance to Content Loot Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/loot 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name": "Treasure Box: {name} Content Vendor",
+	"item_id": [],
+    "sub_vendor_id": <content_vendor_id>,
+    "quantity": 1,
+    "inventory_selector_type": "own",
+    "inventory_operation": "add",
+    "active": true,
+    "sort_order": 0,
+    "drop_weight": 100,
+    "fill_in_new_order": false,
+    "allow_partial_bundles": true,
+    "required_item_count": 0,
+    "stack_limit": 0,
+    "quantity_type": "relative",
+    "is_claimable_by_client": false,
+    "xp_quantity_transform_type": "none",
+    "hard_quantity_maximum": 0,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "last_modified_account_id": <account_id>,
+    "last_modified_timestamp": <current_utc>,
+    "vendor_id": <chance_vendor_id>
+		}       
+    ]
+}
+
+
+
+"Zero Percent Drop Loot Created"
+POST
+@https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/loot 
+
+JSON payload:
+{
+    "data": [
+        {
+    "custom_data": {},
+    "name": "{item_name}",
+	"item_id": <zero_percent_item_id>,
+    "sub_vendor_id": [],
+    "quantity": <zero_percent_quantity>,
+    "inventory_selector_type": "own",
+    "inventory_operation": "add",
+    "active": true,
+    "sort_order": 0,
+    "drop_weight": 0,
+    "fill_in_new_order": false,
+    "allow_partial_bundles": true,
+    "required_item_count": 0,
+    "stack_limit": 0,
+    "quantity_type": "relative",
+    "is_claimable_by_client": false,
+    "xp_quantity_transform_type": "none",
+    "hard_quantity_maximum": 0,
+    "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+    "last_modified_account_id": <account_id>,
+    "last_modified_timestamp": <current_utc>,
+    "vendor_id": <chance_vendor_id>
+		}       
+    ]
+}

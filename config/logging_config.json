@@ -1,0 +1,14 @@
+{
+    "log_directory": "logs",
+    "log_file_prefix": "chest_creation_",
+    "log_format": {
+        "timestamp": true,
+        "include_level": true,
+        "include_api_responses": true
+    },
+    "log_levels": {
+        "api_calls": "INFO",
+        "errors": "ERROR",
+        "success": "INFO"
+    }
+}

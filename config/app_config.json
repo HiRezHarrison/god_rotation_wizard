@@ -1,0 +1,43 @@
+{
+    "api": {
+        "base_url": "https://developer.rallyhere.gg/api",
+        "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+        "endpoints": {
+            "account": "v2/account/me",
+            "items": "v1/sandbox/{sandbox_id}/item",
+            "vendors": "v1/sandbox/{sandbox_id}/vendor",
+            "loots": "v1/sandbox/{sandbox_id}/loot"
+        },
+        "timeout": 30,
+        "retry_attempts": 3
+    },
+    "vendor_types": {
+        "choice": "CHOICE",
+        "content": "CONTENT",
+        "chance": "CHANCE"
+    },
+    "loot_types": {
+        "direct": "DIRECT",
+        "choice": "CHOICE",
+        "chance": "CHANCE",
+        "content": "CONTENT"
+    },
+    "item_types": {
+        "chest": "TREASURE_CHEST"
+    },
+    "logging": {
+        "log_directory": "logs",
+        "log_file_prefix": "chest_creation_"
+    },
+    "ui": {
+        "window_size": "600x400",
+        "font_size": 10,
+        "padding": 10,
+        "title": "SMITE 2 Treasure Chest Creation Wizard",
+        "screen_titles": {
+            "screen1": "Enter Chest Details",
+            "screen2": "Enter Authentication",
+            "screen3": "Creation Progress"
+        }
+    }
+}

@@ -1,0 +1,141 @@
+{
+    "static": {
+        "wrapper": {
+            "data": []
+        },
+        "item": {
+            "custom_data": {},
+            "item_type": "recipe",
+            "description": "Treasure Box",
+            "coupon_consume_on_use": false,
+            "coupon_discount_loot": [],
+            "total_ownership_max": 0,
+            "last_modified_timestamp": "${timestamp}"
+        },
+        "vendor": {
+            "custom_data": {},
+            "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",
+            "loot": [],
+            "last_modified_timestamp": "${timestamp}"
+        },
+        "loot": {
+            "custom_data": {},
+            "inventory_selector_type": "own",
+            "inventory_operation": "add",
+            "active": true,
+            "sort_order": 0,
+            "fill_in_new_order": false,
+            "allow_partial_bundles": true,
+            "required_item_count": 0,
+            "quantity_type": "relative",
+            "is_claimable_by_client": false,
+            "xp_quantity_transform_type": "none",
+            "hard_quantity_maximum": 0,
+            "last_modified_timestamp": "${timestamp}"
+        }
+    },
+    "templates": {
+        "items": {
+            "normal_chest": {
+                "name_template": "{name} Chest",
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}"
+            },
+            "bonus_chest": {
+                "name_template": "{name} Chest - BONUS",
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}"
+            }
+        },
+        "vendors": {
+            "choice": {
+                "name_template": "Treasure Box: {name} Choice Vendor",
+                "description": "Vendor for choice recipe if applicable",
+                "vendor_type": "recipe",
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}"
+            },
+            "content": {
+                "name_template": "Treasure Box: {name} Content Vendor",
+                "description": "Content Vendor - Currently only one of these.",
+                "vendor_type": "randomly_sampled",
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}"
+            },
+            "chance": {
+                "name_template": "Treasure Box: {name} BONUS Chance Vendor",
+                "description": "Vendor for chance buckets",
+                "vendor_type": "randomly_sampled",
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}"
+            }
+        },
+        "loots": {
+            "box_to_choice": {
+                "name_template": "{name}",
+                "drop_weight": 0,
+                "stack_limit": 0,
+                "quantity": 1,
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}",
+                "item_id": "${normal_chest_item_id}",
+                "sub_vendor_id": "${choice_vendor_id}",
+                "vendor_id": "00000000-0000-0000-0000-000000000516"
+            },
+            "box_to_chance": {
+                "name_template": "{name} - BONUS",
+                "drop_weight": 0,
+                "stack_limit": 0,
+                "quantity": 1,
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}",
+                "item_id": "${bonus_chest_item_id}",
+                "sub_vendor_id": "${chance_vendor_id}",
+                "vendor_id": "00000000-0000-0000-0000-000000000517"
+            },
+            "choice_to_content": {
+                "name_template": "Treasure Box: {name} Content Vendor",
+                "drop_weight": 100,
+                "stack_limit": 0,
+                "quantity": 1,
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}",
+                "item_id": null,
+                "sub_vendor_id": "${content_vendor_id}",
+                "vendor_id": "${choice_vendor_id}"
+            },
+            "content": {
+                "name_template": "{item_name}",
+                "drop_weight": 5,
+                "stack_limit": 1,
+                "quantity": 1,
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}",
+                "item_id": "${item_id}",
+                "sub_vendor_id": null,
+                "vendor_id": "${content_vendor_id}"
+            },
+            "zero_percent": {
+                "name_template": "{item_name}",
+                "drop_weight": 0,
+                "stack_limit": 0,
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}",
+                "item_id": "${zero_percent_item_id}",
+                "sub_vendor_id": null,
+                "vendor_id": "${chance_vendor_id}"
+            },
+            "chance_to_content": {
+                "name_template": "Treasure Box: {name} Content Vendor",
+                "drop_weight": 100,
+                "stack_limit": 0,
+                "quantity": 1,
+                "last_modified_account_id": "{account_id}",
+                "sandbox_id": "${sandbox_id}",
+                "item_id": null,
+                "sub_vendor_id": "${content_vendor_id}",
+                "vendor_id": "${chance_vendor_id}"
+            }
+        }
+    }
+}

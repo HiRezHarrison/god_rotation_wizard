@@ -1,0 +1,6 @@
+[2025-03-13 16:33:55] Treasure Content Loots Created: Failed to create content loot for Nu Wa - Goth Bunny: API request failed: 422 Client Error: Unprocessable Entity for url: https://developer.rallyhere.gg/api/v1/sandbox/412abbcb-5f50-4072-b05f-a3c371087dba/loot
+Response: {"detail":[{"loc":["body","data",0,"sub_vendor_id"],"msg":"Either item_id or sub_vendor_id must be provided.","type":"value_error"}]}
+[2025-03-13 16:38:04] Bundle 1 Vendor Created: 'bundle_number'
+[2025-03-13 16:39:08] Bundle 1 Vendor Created: 'bundle_number'
+[2025-03-13 16:44:56] Bundle 1 Vendor Created: 'bundle_number'
+[2025-03-13 16:47:32] Bundle 1 Vendor Created: 'bundle_number'

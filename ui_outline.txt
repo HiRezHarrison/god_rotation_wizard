@@ -1,0 +1,46 @@
+*****Screen 1
+TITLE - "SMITE 2 Treasure Chest Creation Wizard"
+    Text Input Field "Treasure Chest Name"
+    File Selection Button "Item List File"
+    Checkbox "Bonus Chest Needed"
+        If the "Bonus Chest Needed" checkbox is CHECKED, then a subsection titled "0 Percent Item Information" with the following fields
+            Text Input Field "Item Id GUID of 0 Percent Item"
+            Text Input Field "Quantity"
+
+    Button "Start Chest Creation"
+    Button "Exit"
+
+
+*****Screen 2  <--Reached by selecting "Start Chest Creation" button on Screen 1
+TITLE - "Auth Token Input"
+    Textbox with the following definition either underneath or beside it: "Paste Current Auth Token -- This will not be saved and will be properly encoded"
+
+    Button that remains greyed out until input is received in the textbox titled "Continue"
+
+*****Screen 3  <--Reached by selecting "Continue" button on Screen 2
+This will function as a progress screen.  It should have the following fields, and be updated as each API call is made, returns successfully, etc.
+TITLE text "Action" on the column of actions to be performed and "Status" on the column of statuses
+
+    Action column should include the following list of steps as text "Chest Item Created"
+        "Treasure Choice Vendor Created"
+        "Treasure Content Vendor Created"
+        "Treasure Box to Choice Loot Created"
+        "Treasure Choice to Content Loot Created"
+        "Treasure Content Loots Created"
+    <if Bonus Chest Checkbox was checked (these can always be there, should just be greyed out if not applicable)>
+        "Bonus Chest Item Created"
+        "Treasure BONUS Chance Vendor Created"
+        "BONUS Treasure Box to Chance Loot Created"
+        "Treasure Chance to Content Loot Created"
+        "Zero Percent Drop Loot Created"
+
+    The "Status" Title column should have the following status for each action:
+        "Pending"
+        "Processing"
+        "Success"
+        "Failure"
+    There will also be icons for each of those statuses.  Create an icon folder in the program directory and I will put the files there.  There are names "Pending.png", "Processing.png", "Success.png", and "Failure.png"
+
+    At the bottom of Screen 3 there should be two buttons that are greyed out until everything has finished.
+        The first button "See Log" will open a log file of all the API calls and their returns.
+        The second button "Exit" should return the user to Screen 1, with the input for "Treasure Chest Name", "Item List FIle", and "Bonus Chest Needed" cleared.

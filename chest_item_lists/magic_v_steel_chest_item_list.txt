@@ -1,0 +1,16 @@
+Skin - Nu Wa - [Dark Supreme] - CG - 01A - T2	00000000-0000-0000-0000-000000000ef2
+Skin - Aphrodite - [Court Charmer] - CG - 02A - T2	00000000-0000-0000-0000-000000000efd
+Skin - Cupid - [Court Archer] - CG - 01A - T2	00000000-0000-0000-0000-000000000b12
+Skin - Ares - [Tokyo Knight] - C - 02A - T3	00000000-0000-0000-0000-000000000336
+Skin - Cernunnos - [Blood Magus] - CG - 03A - T1	00000000-0000-0000-0000-000000000af8
+Skin - Chaac - [Death's Rain] - CG - 02A - T4	00000000-0000-0000-0000-000000000015
+Skin - Fenrir - [The Undead] - CG - 01A - T2	00000000-0000-0000-0000-000000000013
+Skin - Hecate - [Lunar Hex] - S2E - 01A - T	00000000-0000-0000-0000-0000000002c0
+Skin - Mulan - [High Honor] - CG - 02A - T2	00000000-0000-0000-0000-000000000ef5
+Skin - Kukulkan - [Prismatic Gust] - CG - 01A - T2	00000000-0000-0000-0000-000000000083
+Skin - Poseidon - [Phantom Prince] - CG - 01A - T3	00000000-0000-0000-0000-0000000002d8
+Skin - Ra - [Gentleman] - CG - 01A - T2	00000000-0000-0000-0000-0000000002d7
+Skin - Sol - [Meltdown] - C - 03A - T2	00000000-0000-0000-0000-000000000331
+Skin - Susano - [Onyx Blade] - CG - 02A - T2	00000000-0000-0000-0000-000000000169
+Skin - Thor - [Hellforged] - CG - 01A - T2	00000000-0000-0000-0000-000000000f02
+Skin - Yemoja - [Dawn Spirit] - CG - 01A - T3	00000000-0000-0000-0000-000000000afa
