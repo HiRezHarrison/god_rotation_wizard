@@ -1,5 +1,47 @@
 # Project Checklist: God Rotation Manager
 
+## Completed Tasks
+- [x] Rename `chest_creation_wizard.py` to `god_rotation_manager.py` (and update `.code-workspace`)
+- [x] Refactor the codebase to focus on God rotation management
+- [x] Implement 4-screen workflow (Welcome, Configuration, God Selection, Processing)
+- [x] Create the God Selection interface with sorting options
+- [x] Implement Check All/Uncheck All functionality
+- [x] Add detailed logging for API operations
+- [x] Add download capability for logs
+- [x] Fix UI navigation by adding buttons at the top of Screen 3
+- [x] Ensure application works on first run with dependency checking
+- [x] Clean up legacy files (chest_item_lists, assets)
+
+## Prioritized Features for Tomorrow
+
+### 1. Batch Operations
+- [ ] Support for loading predefined god lists from JSON/CSV files
+- [ ] Ability to save current selections as templates for future use
+
+### 2. User Experience Improvements
+- [ ] Search/filter capabilities for the god list
+- [ ] Categories/tags for gods to enable group selection (by pantheon, role)
+- [ ] Dark mode toggle for UI
+
+### 3. Integration Options
+- [ ] Simple REST API wrapper for programmatic access
+- [ ] Slack/Discord notifications for rotation changes
+
+### 4. Safety Features
+- [ ] Confirmation screen before processing large batches
+- [ ] Preview mode for API payloads without submitting
+- [ ] Rollback capability to revert to previous state
+
+### 5. Operational Enhancements
+- [ ] Scheduled rotation changes (future date/time)
+- [ ] Dockerize the application
+- [ ] Health check endpoint
+
+## Technical Debt / Refactoring
+- [ ] Add comprehensive inline code documentation
+- [ ] Create unit tests for critical components
+- [ ] Modularize the code further for maintainability
+
 ## Phase 1: Setup, Planning & Refactoring
 - [x] Initialize `.cursor` directory and subdirectories.
 - [x] Populate `.cursor/tools` and `.cursor/notes` from repo.
@@ -13,7 +55,6 @@
 - [x] Update `agentnotes.md` for new project direction.
 - [x] Update `project_checklist.md` for new project direction.
 - [ ] **Codebase Search:** Confirm `PUT /loot/:loot_id` usage in existing code.
-- [ ] **Refactor:** Rename `chest_creation_wizard.py` to `god_rotation_manager.py` (and update `.code-workspace`).
 - [ ] **Refactor:** Remove obsolete file parsing logic.
 - [ ] **Refactor:** Remove obsolete chest creation logic/variables.
 - [ ] Analyze `Requirements.txt` and set up/update virtual environment.

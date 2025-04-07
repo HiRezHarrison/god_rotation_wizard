@@ -1,40 +1,59 @@
-# Agent Notes: god_rotation_wizard / chest_creation_wizard
+# Agent Notes: God Rotation Manager
 
-## Project Overview (Updated)
-- **Goal**: **Manage the active status of Gods in SMITE 2 rotations via the RallyHere API.**
-- **Core Functionality**: UI for input (Sandbox ID, Auth Token) and God selection/status display, sequential API calls (Get Vendor, Update Loot), logging.
-- **Technology**: Python (likely Streamlit, TBC).
-- **API Endpoint**: `https://developer.rallyhere.gg/api/` (Requires auth token).
-- **Key Vendor ID**: `00000000-0000-0000-0000-00000000004e` (for God list).
+## Project Status
 
-## Key Files/Directories (To Be Updated)
-- **Rename:** `chest_creation_wizard.py` -> `god_rotation_manager.py` (Recommended).
-- `src/`: Source code directory (API interaction module likely reusable).
-- `tests/`: Test directory (needs updates).
-- `config/`: Configuration (API docs added).
-- `assets/`: UI assets (status icons reusable).
-- ~~`chest_item_lists/`~~ (No longer needed).
-- ~~`writeup.txt`~~ (Superseded by new requirements).
-- `ui_outline.txt`: Needs significant updates for new Screens 1, 3, 4.
-- `Requirements.txt`: Dependencies (review needed).
-- `.cursor/`: Agent support files (rules, tools, docs, notes).
+The God Rotation Manager is a Streamlit-based application for managing the active status of gods in SMITE 2 via the RallyHere API.
 
-## Initial Setup Notes
-- `.cursor` directory created and populated with standard tools/notes from `mycursorrules` repo (rules folder was empty in repo).
-- Key note files initialized: `project_checklist.md`, `notebook.md`, `agentnotes.md`.
+### Current State
+- Basic workflow is implemented with 4 screens
+- APIs for fetching and updating god statuses are working
+- UI improvements have been made (sorting, bulk actions, buttons at top)
+- Legacy files have been cleaned up (removed assets and chest_item_lists folders)
 
-## Approach Guidance (Updated)
-- **UI:**
-    - Screen 1: Simplify - Intro text only.
-    - Screen 2: Modify - Add Sandbox ID input.
-    - Screen 3 (New): Fetch God list (`GET /vendor/:vendor_id`), display with checkboxes (default unchecked=deactivate).
-    - Screen 4 (Old Screen 3): Adapt - Display progress of God LTI updates.
-- **API:**
-    - Get God List: `GET /api/v1/sandbox/:sandbox_id/vendor/:vendor_id` (using provided Vendor ID).
-    - Update God Status: `PUT /api/v1/sandbox/:sandbox_id/loot/:loot_id` (likely adapting existing loot creation function, setting `active` flag).
-- **Logic:**
-    - Remove file parsing.
-    - Implement new application flow.
-    - Adapt logging.
-- **Code Reuse:** Leverage existing API call structure and UI framework.
-- Ensure secure handling of the user-provided auth token. 
+### Key Files
+- `god_rotation_manager.py`: Main application file
+- `src/rallyhere_api.py`: API client for RallyHere
+- `run_app.py`: Helper script with dependency handling
+- `config/app_config.json`: Application configuration
+- `config/api_template.json`: API templates
+
+### Configuration
+- **APIs**: RallyHere developer API for fetching/updating gods
+- **Sandbox ID**: `5641ab90-cbee-4460-ad6d-e3bc1545adb3` (default in config)
+- **God Vendor ID**: `00000000-0000-0000-0000-00000000004e` (hardcoded)
+
+## Technical Details
+
+### Data Structure
+- Gods are stored with complete loot data dictionaries
+- Names are resolved using various possible field names (item_name, name, etc.)
+- Updates require the full loot object with modified 'active' field
+
+### Known Issues
+- Connectivity issues with Streamlit server occasionally require manual restarts
+- Names may display as UUIDs if API doesn't provide name fields
+- All gods should be loaded but testing is needed to confirm this
+
+## User Information
+- Expected users: Team members managing god rotations for SMITE 2
+- Users need RallyHere developer auth token with appropriate permissions
+
+## Next Steps
+The following features have been prioritized for tomorrow:
+
+1. **Batch Operations**
+   - Loading predefined god lists from files
+   - Saving selection templates
+   
+2. **UI Improvements**
+   - Search/filter functionality
+   - Category-based grouping
+   - Dark mode
+   
+3. **Integration & Safety Features**
+   - REST API wrapper
+   - Confirmation screens
+   - Preview mode
+   - Rollback capability
+
+See `.cursor/notes/project_checklist.md` for the complete list of prioritized features. 
