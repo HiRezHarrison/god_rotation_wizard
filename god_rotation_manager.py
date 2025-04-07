@@ -215,6 +215,20 @@ def render_screen3():
     print("Rendering screen 3")
     st.header("Screen 3: God Selection")
 
+    # --- Navigation Buttons at the Top ---
+    st.write("Navigation:")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("Back to Configuration", key="back_to_s2_top"):
+            st.session_state.screen = 'screen2'
+            st.rerun()
+    with col2:
+        if st.button("Proceed to Update", key="to_s4_top"):
+            st.session_state.screen = 'screen4'
+            st.rerun()
+    
+    st.write("---")  # Separator
+
     # --- API Call to Fetch Gods ---
     if 'god_list' not in st.session_state:
         st.session_state.god_list = None # Initialize
@@ -344,18 +358,6 @@ def render_screen3():
             submit_button = st.form_submit_button("Update God Rotation")
     else:
         st.warning("No gods available for selection. Please try again.")
-
-    # --- Navigation Buttons ---
-    st.write("---")  # Separator
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Back to Configuration", key="back_to_s2"):
-            st.session_state.screen = 'screen2'
-            st.rerun()
-    with col2:
-        if st.button("Proceed to Update", key="to_s4"):
-            st.session_state.screen = 'screen4'
-            st.rerun()
 
 def render_screen4():
     st.header("Screen 4: Processing Updates")
