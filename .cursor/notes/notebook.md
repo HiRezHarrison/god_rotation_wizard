@@ -1,6 +1,30 @@
 # God Rotation Manager - Development Notebook
 
-## Latest Updates (April 7, 2025)
+## Latest Updates (April 8, 2025 - End of Chunk 1)
+
+### Chunk 1 Implementation
+- **Save Template:** Added functionality on Screen 3 to save the current `god_selection` dictionary to a user-named JSON file in the `templates/` directory.
+- **Dark Mode Toggle:** Added a toggle widget to the sidebar (`st.session_state.dark_mode`). Note: Does not yet apply visual theme changes.
+- **Confirmation Screen:** Implemented a new screen (Screen 3b) between selection and processing. This screen summarizes changes:
+    - Counts for Activating, Deactivating, Remaining Active, Remaining Inactive gods.
+    - An expander shows detailed lists (comma-separated names) for each category.
+    - Requires explicit confirmation before proceeding to Screen 4.
+
+### Bug Fixes & Improvements
+- **Screen 4 Re-run:** Fixed a bug where the API update loop would re-execute on Screen 4 after interactions like Download Log or Start Over. Introduced `update_process_complete` flag to ensure the loop runs only once per confirmation cycle.
+- **Confirmation Screen Clarity:** Improved the summary on Screen 3b to explicitly state counts and details for gods *not* changing state.
+- **UI Layout:** Moved the "Save Template" UI elements to the top of Screen 3 for better workflow.
+- **Code Structure:** Refactored update calculation logic into `calculate_update_summary` helper function. Moved `get_god_name` to global scope.
+
+### Code Branching
+- Created and pushed branch `V1.0` to mark the stable state before Chunk 1 development.
+
+### Known Issue - Update Speed
+- Updates are processed sequentially (one API call per god).
+- A `time.sleep(0.1)` exists between each call.
+- Next potential optimization: Remove the sleep delay.
+
+## Previous Updates (April 7, 2025)
 
 ### UI Navigation Improvement
 - Added navigation buttons to the top of Screen 3
@@ -39,12 +63,12 @@ def get_god_name(god):
     return god['loot_id']  # Fallback
 ```
 
-## Feature Ideas for Tomorrow
+## Feature Ideas (Pre-Chunk 1)
 
 ### Batch Operations
 Key considerations:
-- Format for saved templates (JSON with loot_ids and desired states)
-- UI for importing/exporting templates
+- Format for saved templates (JSON with loot_ids and desired states) - Implemented Save
+- UI for importing/exporting templates - Load needed
 - Validation to ensure loot_ids still exist
 
 ### Search/Filter

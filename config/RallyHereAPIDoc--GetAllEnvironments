@@ -1,0 +1,184 @@
+Get All Environments
+GET
+/api/v1/product/:product_id/environment
+Get all environments
+
+Request
+Path Parameters
+
+product_id
+uuid
+required
+Product ID
+
+Query Parameters
+
+include_archive
+Include Archive
+Include archive environments
+
+Responses
+200
+422
+Successful Response
+
+application/json
+Schema
+Example (from schema)
+Schema
+
+Array [
+
+sandbox_id
+uuid
+The id of the sandbox this environment uses
+
+unique_name
+Unique Name (string)
+Unique name used during environment spin up. Must be unique across all products
+
+config_db_name
+Config Db Name (string)
+Name of Config DB to create and/or set up for this environment
+
+game_db_name
+Game Db Name (string)
+Name of Game DB to create and/or set up for this environment
+
+log_db_name
+Log Db Name (string)
+Name of Log DB to create and/or set up for this environment
+
+match_db_name
+Match Db Name (string)
+Name of Match DB to create and/or set up for this environment
+
+person_db_name
+Person Db Name (string)
+Name of Person DB to create and/or set up for this environment
+
+reputation_db_name
+Reputation Db Name (string)
+Name of reputation DB to create and/or set up for this environment
+
+schedule_db_name
+Schedule Db Name (string)
+Name of schedule DB to create and/or set up for this environment
+
+stats_db_name
+Stats Db Name (string)
+Name of stats DB to create and/or set up for this environment
+
+support_db_name
+Support Db Name (string)
+Name of support DB to create and/or set up for this environment
+
+file_api_db_name
+File Api Db Name (string)
+Name of file API DB to create and/or set up for this environment
+
+kql_db_name
+Kql Db Name (string)
+Name of KQL DB to create and/or set up for this environment
+
+gets_resource_name
+Gets Resource Name (string)
+Name of gets resource to create and/or set up for this environment
+
+sandbox_generation_in_progress
+Sandbox Generation In Progress (boolean)
+Whether sandbox generation is currently in progress
+
+base_sandbox_id
+uuid
+The id of the sandbox this environment uses
+
+generated_sandbox_id
+uuid
+The ID of the sandbox that was generated
+
+name
+Name (string)
+required
+Possible values: non-empty and <= 200 characters
+
+The name of the environment
+
+short_name
+Short Name (string)
+required
+Possible values: non-empty and <= 100 characters
+
+The short name of the environment
+
+base_url
+Base Url (string)
+Possible values: non-empty and <= 200 characters
+
+The base url for this environment. This must start with https://
+
+primary_contact_email
+Primary Contact Email (string)
+Possible values: non-empty and <= 200 characters
+
+The primary contact email for the environment
+
+archive
+Archive (boolean)
+Determines if the Loot is active. Inactive Loot will not be fulfilled
+
+state
+EnvironmentState (string)
+Possible values: [creating, created, on, off, initializing, terminating, destroying, destroyed]
+
+An enumeration.
+
+authentication_state
+EnvironmentAuthState (string)
+Possible values: [open, limited, locked]
+
+An enumeration.
+
+kick_before_hint
+date-time
+Datetime that enforces that a timezone is given. Unix timestamps are allowed and forced into the UTC time zone
+
+classic_support_tool_url
+Classic Support Tool Url (string)
+URL to the classic support tool
+
+usage
+EnvironmentUsage (string)
+Possible values: [dev, live]
+
+An enumeration.
+
+sandbox_generation_enabled
+Sandbox Generation Enabled (boolean)
+Whether sandbox generation is enabled for this environment
+
+sandbox_generation_timestamp
+date-time
+Timestamp of when the sandbox generation was last run
+
+sandbox_generation_version
+Sandbox Generation Version (integer)
+Version number indicating the state of the environment's generated sandbox
+
+environment_id
+uuid
+required
+last_modified_timestamp
+date-time
+Timestamp of when the resource was last modified
+
+rh_base_url
+Rh Base Url (string)
+Base URL of the environment that is generated and maintened by RallyHere
+
+product_id
+uuid
+required
+Product that owns this sandbox
+
+]
