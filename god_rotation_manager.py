@@ -7,12 +7,14 @@ import streamlit as st
 import time
 import datetime
 import uuid
+import glob # Import glob for listing files
 
 print("Script starting...")
 
 # Define global variables
 app_config = None
 api_template = None
+TEMPLATES_DIR = "templates" # Define templates directory path
 
 # Setup logging
 if 'api_logs' not in st.session_state:
@@ -23,10 +25,13 @@ if 'api_logs' not in st.session_state:
 def log_api_call(operation, loot_id, request_data, response_data, success):
     """Log API calls for later retrieval"""
     timestamp = datetime.datetime.now().isoformat()
+    # For batch calls, loot_id might be None or a list
+    log_loot_id = loot_id if loot_id else "BATCH"
+    
     log_entry = {
         "timestamp": timestamp,
         "operation": operation,
-        "loot_id": loot_id,
+        "loot_id": log_loot_id, # Use modified ID for logging clarity
         "request_data": request_data,
         "response_data": response_data,
         "success": success
@@ -291,6 +296,70 @@ def render_screen3():
             
     st.write("---")  # Separator
 
+    # --- Template Loading Section ---
+    st.subheader("Load Selection from Template")
+    # Ensure templates directory exists
+    if not os.path.exists(TEMPLATES_DIR):
+        os.makedirs(TEMPLATES_DIR)
+        
+    template_files = glob.glob(os.path.join(TEMPLATES_DIR, "*.json"))
+    template_names = [os.path.basename(f) for f in template_files]
+    
+    load_cols = st.columns([3, 1])
+    with load_cols[0]:
+        selected_template = st.selectbox(
+            "Select Template", 
+            options=[""] + template_names, # Add empty option
+            index=0, 
+            key="template_select",
+            label_visibility="collapsed"
+        )
+    with load_cols[1]:
+        if st.button("Load Template", key="load_template"):
+            if selected_template:
+                filepath = os.path.join(TEMPLATES_DIR, selected_template)
+                try:
+                    with open(filepath, 'r') as f:
+                        loaded_selection = json.load(f)
+                    
+                    # Validate format (basic check)
+                    if isinstance(loaded_selection, dict) and all(isinstance(v, bool) for v in loaded_selection.values()):
+                        # Update session state, overriding existing selection
+                        # Only update if god_list is already loaded
+                        if 'god_list' in st.session_state and st.session_state.god_list:
+                            current_god_ids = {god['loot_id'] for god in st.session_state.god_list}
+                            # Create new selection dict based on template and current gods
+                            new_selection = {}
+                            loaded_count = 0
+                            missing_count = 0
+                            for god_id, active_state in loaded_selection.items():
+                                if god_id in current_god_ids:
+                                     new_selection[god_id] = active_state
+                                     loaded_count += 1
+                                else:
+                                     missing_count += 1
+                                     print(f"Warning: Loot ID {god_id} from template '{selected_template}' not found in current god list.")
+                            
+                            # Keep existing selections for gods not in the template?
+                            # Current approach: replace entirely with template + known gods
+                            st.session_state.god_selection = new_selection
+                            st.success(f"Loaded '{selected_template}'. Applied state to {loaded_count} known gods.")
+                            if missing_count > 0:
+                                st.warning(f"{missing_count} IDs from template were not found in the current god list.")
+                            st.rerun() # Rerun to update checkboxes
+                        else:
+                            st.warning("Cannot load template until God List is fetched.")
+                    else:
+                        st.error("Invalid template file format. Expected JSON dictionary with boolean values.")
+                        
+                except Exception as e:
+                    st.error(f"Error loading template: {e}")
+                    print(f"Error loading template '{selected_template}': {e}")
+            else:
+                st.warning("Please select a template to load.")
+                
+    st.write("---")  # Separator
+    
     # --- Save Template Section (Moved Up) ---
     st.subheader("Save Current Selection")
     save_cols = st.columns([3, 1]) # Wider input, smaller button
@@ -310,13 +379,15 @@ def render_screen3():
                 if not safe_filename:
                     st.error("Invalid template filename.")
                 else:
-                    templates_dir = "templates"
+                    filepath = os.path.join(TEMPLATES_DIR, safe_filename)
                     try:
-                        os.makedirs(templates_dir, exist_ok=True)
-                        filepath = os.path.join(templates_dir, safe_filename)
+                        # Ensure directory exists (redundant check, but safe)
+                        os.makedirs(TEMPLATES_DIR, exist_ok=True) 
                         with open(filepath, 'w') as f:
                             json.dump(st.session_state.god_selection, f, indent=4)
                         st.success(f"Saved as '{safe_filename}'")
+                        # Refresh template list in selectbox after saving
+                        st.rerun() 
                     except Exception as e:
                         st.error(f"Error saving: {e}")
                         print(f"Error saving template '{safe_filename}': {e}")
@@ -362,8 +433,13 @@ def render_screen3():
 
             st.session_state.god_list = god_list
             
-            # Initialize selection state based on current active status
-            st.session_state.god_selection = {god['loot_id']: god.get('active', False) for god in god_list}
+            # Initialize selection state based on current active status IF NOT ALREADY SET (e.g. by loading template)
+            if 'god_selection' not in st.session_state:
+                st.session_state.god_selection = {god['loot_id']: god.get('active', False) for god in god_list}
+            else:
+                # Ensure selection state only contains current gods after initial fetch
+                current_god_ids = {god['loot_id'] for god in god_list}
+                st.session_state.god_selection = {k: v for k, v in st.session_state.god_selection.items() if k in current_god_ids}
             
             st.success(f"Successfully loaded {len(god_list)} gods.")
         else:
@@ -374,6 +450,10 @@ def render_screen3():
 
     # --- Display Gods For Selection ---
     if st.session_state.god_list:
+        # Check if god_selection exists, initialize if it was cleared or never set
+        if 'god_selection' not in st.session_state:
+             st.session_state.god_selection = {god['loot_id']: god.get('active', False) for god in st.session_state.god_list}
+             
         st.write("Select which gods should be active in the rotation:")
         
         # Add sorting options
@@ -396,28 +476,39 @@ def render_screen3():
         with col1:
             if st.button("Check All Gods"):
                 for god in gods:
-                    st.session_state.god_selection[god['loot_id']] = True
+                    # Only update selection for gods currently in the list
+                    if god['loot_id'] in st.session_state.god_selection:
+                         st.session_state.god_selection[god['loot_id']] = True
                 st.rerun()
         with col2:
             if st.button("Uncheck All Gods"):
                 for god in gods:
-                    st.session_state.god_selection[god['loot_id']] = False
+                     # Only update selection for gods currently in the list
+                     if god['loot_id'] in st.session_state.god_selection:
+                          st.session_state.god_selection[god['loot_id']] = False
                 st.rerun()
         
         st.write("---")  # Separator
         
         # Create checkboxes for each god (No form needed anymore)
+        # Make sure to use the current selection state
+        current_selection = st.session_state.god_selection
         for god in gods:
             loot_id = god.get('loot_id')
+            if loot_id not in current_selection:
+                 # God exists in list but somehow not in selection? Initialize it.
+                 current_selection[loot_id] = god.get('active', False)
+                 
             item_name = get_god_name(god) # Use helper
             
             # Format the label to show if it's currently active
             current_status = "✓ Active" if god.get('active', False) else "✗ Inactive"
             checkbox_label = f"{item_name} ({current_status})"
             
-            st.session_state.god_selection[loot_id] = st.checkbox(
+            # Update the dictionary directly on checkbox interaction
+            current_selection[loot_id] = st.checkbox(
                 checkbox_label, 
-                value=st.session_state.god_selection.get(loot_id, False),
+                value=current_selection.get(loot_id, False), # Use current selection value
                 key=f"god_{loot_id}" # Keep key for state persistence
             )
             
@@ -452,6 +543,10 @@ def render_screen3_confirm():
     )
     total_changes = len(gods_to_update)
     total_unchanged = len(gods_unchanged)
+    
+    # Removed Preview Mode Toggle
+    # preview_mode = st.checkbox("Preview Batch API Payload (Read-Only)", key="preview_mode", value=False)
+    # st.write("---") 
 
     if total_changes == 0:
         st.info("No changes detected in God active status. Nothing to update.")
@@ -459,7 +554,10 @@ def render_screen3_confirm():
         if st.button("Back to Selection", key="back_to_s3_no_changes"):
             st.session_state.screen = 'screen3'
             st.rerun()
-    else:
+    # Removed preview_mode condition
+    # elif preview_mode:
+    #    ... preview logic removed ...
+    else: # Normal confirmation view (changes exist)
         st.warning(f"You are about to submit {total_changes} change(s).")
         
         activating_gods = [g for g in gods_to_update if g['desired_active']]
@@ -480,23 +578,15 @@ def render_screen3_confirm():
             if activating_gods:
                 st.subheader(f"Gods to Activate ({len(activating_gods)}):")
                 st.write(", ".join([f"{g['name']}" for g in activating_gods]))
-                # for god in activating_gods:
-                #     st.write(f"- {god['name']} ({god['loot_id']})")
             if deactivating_gods:
                 st.subheader(f"Gods to Deactivate ({len(deactivating_gods)}):")
                 st.write(", ".join([f"{g['name']}" for g in deactivating_gods]))
-                # for god in deactivating_gods:
-                #      st.write(f"- {god['name']} ({god['loot_id']})")
             if remaining_active:
                  st.subheader(f"Gods Remaining Active ({len(remaining_active)}):")
                  st.write(", ".join([f"{g['name']}" for g in remaining_active]))
-                 # for god in remaining_active:
-                 #      st.write(f"- {god['name']} ({god['loot_id']})")
             if remaining_inactive:
                  st.subheader(f"Gods Remaining Inactive ({len(remaining_inactive)}):")
                  st.write(", ".join([f"{g['name']}" for g in remaining_inactive]))
-                 # for god in remaining_inactive:
-                 #      st.write(f"- {god['name']} ({god['loot_id']})")
 
         st.write("---")
 
@@ -511,9 +601,10 @@ def render_screen3_confirm():
                 # Clear flags before going to processing screen
                 if 'update_process_complete' in st.session_state: del st.session_state['update_process_complete']
                 if 'update_process_started' in st.session_state: del st.session_state['update_process_started']
+                # Clear batch response state if it exists
+                if 'batch_update_response' in st.session_state: del st.session_state['batch_update_response']
                 st.session_state.screen = 'screen4'
                 st.rerun()
-
 
 def render_screen4():
     st.header("Screen 4: Processing Updates")
@@ -546,10 +637,9 @@ def render_screen4():
         if 'update_process_started' not in st.session_state:
             st.session_state.api_logs = [] # Clear logs specific to this run
             st.session_state.update_process_started = True # Mark that processing screen has started
-            st.session_state.update_success_count = 0 # Initialize counters
+            # Initialize result counters for individual updates
+            st.session_state.update_success_count = 0
             st.session_state.update_error_list = []
-
-        st.write(f"Processing {total_updates} God status update(s)...")
 
         if total_updates == 0:
             st.info("No changes were requested.")
@@ -557,37 +647,40 @@ def render_screen4():
             st.rerun() # Rerun to show final summary/nav immediately
                 
         else:
+            st.write(f"Processing {total_updates} God status update(s)...")
             # Initialize API client
             from src.rallyhere_api import RallyHereAPIClient 
             global app_config, api_template
             client = RallyHereAPIClient(auth_token, app_config['api'], api_template)
             
-            # Progress Bar
+            # Restore Progress Bar and loop for individual updates
             progress_bar = st.progress(0)
-            status_area = st.container() # Use a container to update status text in place
+            status_area = st.container() 
             processed_count = 0 # Local counter for progress bar
             
-            # Use counters from session state
+            # Retrieve counts from session state
             success_count = st.session_state.update_success_count
             error_list = st.session_state.update_error_list
             
-            # Run the update loop
+            # Run the update loop (restored from before batch attempt)
             for god_info in gods_to_update:
+                # Check if already processed in a previous partial run (if needed, basic implementation just runs all)
+                # More robust: check if loot_id is already in logs for this run?
+                
                 loot_id = god_info['loot_id']
                 name = god_info['name']
                 desired_active = god_info['desired_active']
-                full_data = god_info['full_data'] # Use the full data passed
+                full_data = god_info['full_data']
                 
                 status_area.write(f"Updating {name} (Loot ID: {loot_id}) to {'Active' if desired_active else 'Inactive'}...")
                 
-                # --- Call API to update status ---
+                # --- Call API to update status (Single Update) ---
                 response = client.update_loot_status(loot_id, sandbox_id, desired_active, full_data)
                 
                 # Log the API request
                 log_api_call(
                     operation="UPDATE_LOOT_STATUS",
                     loot_id=loot_id,
-                    # Log only essential request parts, not necessarily the giant full_data again?
                     request_data={"loot_id": loot_id, "active": desired_active}, 
                     response_data={"success": response.success, "data": response.data, "error": response.error},
                     success=response.success
@@ -603,8 +696,8 @@ def render_screen4():
                 processed_count += 1
                 progress_bar.progress(processed_count / total_updates)
                 
-                # Small delay to ensure UI updates and avoid overwhelming API?
-                time.sleep(0.1)
+                # Decide whether to keep the sleep or not
+                # time.sleep(0.1) 
                 
             # Store final counts and mark complete
             st.session_state.update_success_count = success_count
@@ -614,13 +707,17 @@ def render_screen4():
 
     # --- Display Final Summary and Logs (After Update Process is Complete) --- 
     else: 
-        total_updates_processed = len(st.session_state.api_logs) # Use log count as proxy for processed items
+        # Retrieve results from session state
+        # response = st.session_state.get('batch_update_response') # No longer batch response
+        total_updates_processed = len(st.session_state.api_logs)
         success_count = st.session_state.get('update_success_count', 0)
         error_list = st.session_state.get('update_error_list', [])
         
         st.header("Update Summary")
+        # if response is None: # Condition no longer needed
+        #      st.warning("Update process did not run or state was lost.") 
         if total_updates_processed == 0:
-             st.info("No updates were processed.")
+             st.info("No updates were attempted.") # Or "No changes were requested" if initial total_updates was 0
         elif not error_list:
             st.success(f"All {success_count} God status updates completed successfully!")
         else:
@@ -629,6 +726,10 @@ def render_screen4():
                 st.subheader("Errors Encountered:")
                 for error in error_list:
                     st.error(error)
+            # Removed batch-specific error display
+            # if response.data:
+            #     st.subheader("Error Details from API:")
+            #     st.json(response.data)
         
         st.write("--- ")
 
@@ -655,7 +756,7 @@ def render_screen4():
         with col3:
             if st.button("Start Over", key="restart_app_s4"):
                 # Clear relevant session state
-                keys_to_clear = ['god_list', 'god_selection', 'update_process_started', 'update_process_complete', 'show_logs', 'update_success_count', 'update_error_list']
+                keys_to_clear = ['god_list', 'god_selection', 'update_process_started', 'update_process_complete', 'show_logs', 'batch_update_response', 'update_success_count', 'update_error_list'] # Added counters
                 for key in keys_to_clear:
                     if key in st.session_state: del st.session_state[key]
                 st.session_state.screen = 'screen1'
@@ -670,7 +771,13 @@ def render_screen4():
                 with log_display_area:
                      for i, log in enumerate(reversed(st.session_state.api_logs)): # Show newest first
                         status_icon = "✅" if log['success'] else "❌"
-                        with st.expander(f"{status_icon} Log Entry #{len(st.session_state.api_logs)-i}: {log['operation']} - {log['loot_id']}"):
+                        # Adapt log entry display for batch (Reverted)
+                        log_title = f"{status_icon} Log Entry #{len(st.session_state.api_logs)-i}: {log['operation']} - {log['loot_id']}"
+                        # if log['operation'] == "BATCH_UPDATE_LOOT_STATUS":
+                        #     count = log['request_data'].get('count', '?')
+                        #     log_title = f"{status_icon} Log Entry #{len(st.session_state.api_logs)-i}: {log['operation']} ({count} items)"
+                        
+                        with st.expander(log_title):
                             st.json(log) # Display full log entry as JSON
             else:
                 st.info("No API logs available for this run.")

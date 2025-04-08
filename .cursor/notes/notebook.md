@@ -1,8 +1,19 @@
 # God Rotation Manager - Development Notebook
 
-## Latest Updates (April 8, 2025 - End of Chunk 1)
+## Latest Updates (April 8, 2025 - End of V1.2 Cycle)
 
-### Chunk 1 Implementation
+### Chunk 2 Implementation & Revert
+- **Load Template:** Added functionality on Screen 3 to load a saved JSON template (`templates/` dir) using a dropdown and button. Updates the current `god_selection` state, respecting only `loot_id`s present in the currently fetched `god_list`.
+- **Batch Update Attempt:**
+    - Explored using `PUT` and then `POST` on the `/v1/sandbox/{sid}/loot` endpoint with a `{"data": [...]}` payload to perform batch updates.
+    - `PUT` failed with `405 Method Not Allowed`.
+    - `POST` failed with `409 Conflict - loot_legacy_id_already_exists`.
+    - **Conclusion:** This endpoint is confirmed for batch *creation*, not batch *update* of existing loot items.
+    - **Action:** Reverted the API client and Screen 4 logic back to using sequential individual `PUT /v1/sandbox/{sid}/loot/{lid}` calls for each update.
+- **Preview Mode:** Implemented preview mode on Screen 3b to show the potential batch payload. Removed this feature after the batch update approach was abandoned.
+- **Performance Optimization:** Removed the `time.sleep(0.1)` delay between individual `PUT` calls in the update loop on Screen 4. Resulted in slightly faster processing, deemed acceptable for now.
+
+### Chunk 1 Implementation (Completed Earlier)
 - **Save Template:** Added functionality on Screen 3 to save the current `god_selection` dictionary to a user-named JSON file in the `templates/` directory.
 - **Dark Mode Toggle:** Added a toggle widget to the sidebar (`st.session_state.dark_mode`). Note: Does not yet apply visual theme changes.
 - **Confirmation Screen:** Implemented a new screen (Screen 3b) between selection and processing. This screen summarizes changes:
@@ -10,7 +21,7 @@
     - An expander shows detailed lists (comma-separated names) for each category.
     - Requires explicit confirmation before proceeding to Screen 4.
 
-### Bug Fixes & Improvements
+### Bug Fixes & Improvements (During V1.2 Cycle)
 - **Screen 4 Re-run:** Fixed a bug where the API update loop would re-execute on Screen 4 after interactions like Download Log or Start Over. Introduced `update_process_complete` flag to ensure the loop runs only once per confirmation cycle.
 - **Confirmation Screen Clarity:** Improved the summary on Screen 3b to explicitly state counts and details for gods *not* changing state.
 - **UI Layout:** Moved the "Save Template" UI elements to the top of Screen 3 for better workflow.
@@ -18,11 +29,12 @@
 
 ### Code Branching
 - Created and pushed branch `V1.0` to mark the stable state before Chunk 1 development.
+- Current state corresponds to planned `V1.2` commit/tag.
 
-### Known Issue - Update Speed
+### Known Issues - Update Speed
 - Updates are processed sequentially (one API call per god).
-- A `time.sleep(0.1)` exists between each call.
-- Next potential optimization: Remove the sleep delay.
+- Batch update not feasible with known endpoints.
+- Speed is acceptable for now but could be slow for hundreds of changes.
 
 ## Previous Updates (April 7, 2025)
 
@@ -63,13 +75,12 @@ def get_god_name(god):
     return god['loot_id']  # Fallback
 ```
 
-## Feature Ideas (Pre-Chunk 1)
+## Feature Ideas (Pre-V1.2 Development)
 
 ### Batch Operations
 Key considerations:
-- Format for saved templates (JSON with loot_ids and desired states) - Implemented Save
-- UI for importing/exporting templates - Load needed
-- Validation to ensure loot_ids still exist
+- Format for saved templates (JSON with loot_ids and desired states) - [x] Save, [x] Load
+- Validation to ensure loot_ids still exist - Handled during Load
 
 ### Search/Filter
 Implementation ideas:

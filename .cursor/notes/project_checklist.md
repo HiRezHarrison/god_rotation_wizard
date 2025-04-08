@@ -3,39 +3,84 @@
 ## Completed Tasks
 - [x] Rename `chest_creation_wizard.py` to `god_rotation_manager.py` (and update `.code-workspace`)
 - [x] Refactor the codebase to focus on God rotation management
-- [x] Implement 4-screen workflow (Welcome, Configuration, God Selection, Processing)
+- [x] Implement 4-screen workflow (Welcome, Config, Selection, Confirmation, Processing, Summary)
 - [x] Create the God Selection interface with sorting options
 - [x] Implement Check All/Uncheck All functionality
-- [x] Add detailed logging for API operations
+- [x] Add detailed logging for API operations (per-item updates)
 - [x] Add download capability for logs
 - [x] Fix UI navigation by adding buttons at the top of Screen 3
 - [x] Ensure application works on first run with dependency checking
 - [x] Clean up legacy files (chest_item_lists, assets)
-- [x] Ability to save current selections as templates for future use (Batch Ops - Chunk 1)
-- [x] Dark mode toggle for UI (UX - Chunk 1)
-- [x] Confirmation screen before processing updates (Safety - Chunk 1)
+- [x] Ability to save current selections as templates (Batch Ops - Chunk 1)
+- [x] Dark mode toggle for UI control (UX - Chunk 1)
+- [x] Confirmation screen with detailed change summary (Safety - Chunk 1)
+- [x] Fix Screen 4 update re-run bug
+- [x] Ability to load selections from templates (Batch Ops - Chunk 2)
+- [x] Remove `time.sleep(0.1)` from update loop (Performance)
+- [x] Investigate & Revert failed Batch Update attempt (API Limitation)
 
-## Prioritized Features for Tomorrow / Next Steps
-
-### Chunk 2: Enhanced Batch Ops & Data Preview
-- [ ] Support for loading predefined god lists from JSON/CSV files (Batch Ops)
-- [ ] Preview mode for API payloads without submitting (Safety)
+## Prioritized Features for Next Session
 
 ### Chunk 3: Advanced UI & Interaction
 - [ ] Search/filter capabilities for the god list (UX)
-- [ ] Categories/tags for gods to enable group selection (by pantheon, role) (UX)
+- [ ] Categories/tags for gods to enable group selection (by pantheon, role) (UX) - Requires data source/mapping
 
-### Chunk 4: Integration & Automation
-- [ ] Simple REST API wrapper for programmatic access (Integration)
-- [ ] Slack/Discord notifications for rotation changes (Integration)
-- [ ] Scheduled rotation changes (future date/time) (Operational)
+### Refactoring & Testing
+- [ ] Modularize `god_rotation_manager.py` (currently > 700 lines) into smaller modules (e.g., `ui_screens.py`, `state_helpers.py`).
+- [ ] Create unit tests for critical components (API client mocking, state logic).
+- [ ] Remove legacy code (`src/chest_*.py`).
 
-### Chunk 5: Deployment & Ops
-- [ ] Dockerize the application (Operational)
-- [ ] Health check endpoint (Operational)
+### Optional / Polish
+- [ ] Apply visual Dark Mode theme based on toggle.
+- [ ] Add comprehensive inline code documentation.
 
-### Deferred / High Risk
-- [ ] Rollback capability to revert to previous state
+### Deferred / Longer Term
+- [ ] Simple REST API wrapper for programmatic access (Integration - Chunk 4)
+- [ ] Slack/Discord notifications for rotation changes (Integration - Chunk 4)
+- [ ] Scheduled rotation changes (future date/time) (Operational - Chunk 4)
+- [ ] Dockerize the application (Operational - Chunk 5)
+- [ ] Health check endpoint (Operational - Chunk 5)
+- [ ] Rollback capability to revert to previous state (High Risk / Effort)
+
+## Phase 1: Setup, Planning & Refactoring (Complete)
+- [x] Initialize `.cursor` directory and subdirectories.
+- [x] Populate `.cursor/tools` and `.cursor/notes` from repo.
+- [x] Initialize note files (`project_checklist.md`, `notebook.md`, `agentnotes.md`).
+- [x] Initial project review (old requirements).
+- [x] Update `agentnotes.md` with initial findings.
+- [x] Create initial `project_checklist.md`.
+- [x] Receive new requirements (God Rotation Management).
+- [x] Identify relevant API endpoints (`GET /vendor/:vendor_id`, `PUT /loot/:loot_id`).
+- [x] Identify God List Vendor ID (`00000000-0000-0000-0000-00000000004e`).
+- [x] Update `agentnotes.md` for new project direction.
+- [x] Update `project_checklist.md` for new project direction.
+- [x] Analyze `Requirements.txt` and set up/update virtual environment (Handled by `run_app.py`).
+
+## Phase 2: Core Logic Implementation (Complete)
+- [x] Implement/Adapt API interaction module for `GET /vendor/:vendor_id` and `PUT /loot/:loot_id` (setting `active` flag).
+- [x] Implement core God rotation logic (fetch list, prepare updates based on selection).
+- [x] Adapt logging functionality for new API calls.
+
+## Phase 3: UI Implementation (Complete for V1.2)
+- [x] Implement Screen 1 (Intro Text).
+- [x] Implement Screen 2 (Input: Auth Token, Sandbox ID).
+- [x] Implement Screen 3 (Fetch & Display God List, sorting, bulk ops, Save/Load Template).
+- [x] Implement Screen 3b (Confirmation Screen).
+- [x] Implement Screen 4 (Sequential Progress Display, Log Buttons, Start Over Button).
+- [x] Implement Sidebar (Dark Mode Toggle).
+
+## Phase 4: Testing
+- [ ] Set up/Adapt test framework (`tests/` directory).
+- [ ] Write unit tests for API interaction (mocking API calls).
+- [ ] Write unit tests for core God rotation logic.
+- [ ] Write unit tests for Save/Load Template functionality.
+- [ ] Write integration tests for component interactions.
+- [ ] Write feature tests for UI and end-to-end workflow.
+
+## Phase 5: Finalization
+- [ ] Code review and refactoring (Ongoing - See Technical Debt section).
+- [ ] Final testing and bug fixing.
+- [ ] Documentation updates (Ongoing - This checklist, agentnotes, notebook).
 
 ## Technical Debt / Refactoring
 - [ ] Add comprehensive inline code documentation

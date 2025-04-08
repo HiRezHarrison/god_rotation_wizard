@@ -1,5 +1,5 @@
 import requests
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 import json
 import base64
@@ -24,6 +24,14 @@ class RallyHereAPIClient:
             "Content-Type": "application/json"
         }
         # Removed automatic sandbox ID update in templates as it might vary
+        
+        # Define read-only fields once
+        self.read_only_loot_fields = [
+             'sandbox_id', 'last_modified_account_id', 'last_modified_timestamp', 
+             'created_timestamp', 'loot_id', 'vendor_name', 'sub_vendor_name', 
+             'item_name', 'required_item_name', 'quantity_multi_inventory_item_name',
+             'current_price_point_name', 'pre_sale_price_point_name'
+        ]
 
     def _get_current_timestamp(self) -> str:
         """Get current UTC timestamp in ISO format"""
@@ -44,7 +52,11 @@ class RallyHereAPIClient:
             if params:
                  print(f"Params: {params}")
             if data:
-                print(f"Data: {json.dumps(data, indent=2)}")
+                # Limit logging potentially huge batch data
+                if isinstance(data.get('data'), list) and len(data['data']) > 5:
+                    print(f"Data: {{ 'data': [ <{len(data['data'])} items> ] }}") 
+                else: 
+                    print(f"Data: {json.dumps(data, indent=2)}")
             print("---------------------------")
             
             response = requests.request(
@@ -71,16 +83,26 @@ class RallyHereAPIClient:
             try:
                 response_data = response.json()
             except json.JSONDecodeError:
-                 response_data = None # Or {} or some indicator of success with no body
+                 # Even if status is 2xx, no JSON body might mean success or partial success
+                 # Return success=True but no data, caller needs to handle this possibility
+                 response_data = None 
 
             return APIResponse(success=True, data=response_data)
                 
         except requests.exceptions.RequestException as e:
             error_msg = f"API request failed: {str(e)}"
+            # Try to parse error response body if available
+            error_data = None
             if hasattr(e, 'response') and e.response is not None:
-                 error_msg += f" | Status: {e.response.status_code} | Response: {e.response.text}"
+                 error_msg += f" | Status: {e.response.status_code}"
+                 try:
+                      error_data = e.response.json() # Attempt to get structured error
+                      error_msg += f" | Response: {json.dumps(error_data)}" 
+                 except json.JSONDecodeError:
+                      error_msg += f" | Response: {e.response.text}" # Fallback to text
             print(f"Error making API request: {error_msg}") # Ensure error is logged
-            return APIResponse(success=False, error=error_msg)
+            # Include parsed error data if available in the response object
+            return APIResponse(success=False, error=error_msg, data=error_data)
         except Exception as e: # Catch other potential errors
             error_msg = f"An unexpected error occurred during API request: {str(e)}"
             print(error_msg)
@@ -112,10 +134,25 @@ class RallyHereAPIClient:
 
         endpoint = self.endpoints['account']
         return self._make_request("GET", endpoint)
+        
+    # --- Helper to prepare a single loot item payload for PUT requests ---
+    def _prepare_loot_payload(self, is_active: bool, full_loot_data: dict) -> dict:
+        """Prepares a single loot data dictionary for PUT update requests."""
+        if not full_loot_data:
+            return None # Or raise error?
+            
+        payload = full_loot_data.copy() # Avoid modifying the original dict
+        payload['active'] = is_active
+        
+        # Remove read-only fields
+        for field in self.read_only_loot_fields:
+             payload.pop(field, None) # Remove if exists
+             
+        return payload
 
-    # --- Placeholder for Update Loot ---
+    # --- Update Single Loot Item (Original Method) ---
     def update_loot_status(self, loot_id: str, sandbox_id: str, is_active: bool, full_loot_data: dict) -> APIResponse:
-        """Update the active status of a specific loot item using PUT."""
+        """Update the active status of a specific loot item using PUT to loot_by_id."""
         if 'loot_by_id' not in self.endpoints:
             error_msg = "Configuration Error: 'loot_by_id' endpoint not defined in app_config.json"
             print(error_msg)
@@ -129,24 +166,13 @@ class RallyHereAPIClient:
              print(error_msg)
              return APIResponse(success=False, error=error_msg)
         
-        # Prepare payload - NEED TO SEND THE ENTIRE OBJECT, not just 'active'
-        # We fetched the full object earlier in get_vendor_loot, use that as base
-        payload = full_loot_data.copy() # Avoid modifying the original dict
-        payload['active'] = is_active
-        
-        # Remove fields that should not be sent back in PUT? Check API docs. Common ones:
-        # Read-only fields like created_timestamp, last_modified*, *_name fields derived from IDs.
-        read_only_fields = [
-             'sandbox_id', 'last_modified_account_id', 'last_modified_timestamp', 
-             'created_timestamp', 'loot_id', 'vendor_name', 'sub_vendor_name', 
-             'item_name', 'required_item_name', 'quantity_multi_inventory_item_name',
-             'current_price_point_name', 'pre_sale_price_point_name'
-        ]
-        for field in read_only_fields:
-             payload.pop(field, None) # Remove if exists
+        # Prepare payload using the helper
+        payload = self._prepare_loot_payload(is_active, full_loot_data)
+        if payload is None:
+             return APIResponse(success=False, error=f"Failed to prepare payload for loot_id {loot_id}")
 
         return self._make_request("PUT", endpoint, data=payload)
-
+        
     # --- Obsolete Chest Methods (Keep for reference or remove?) ---
     # ... (create_item, create_vendor, create_loot, create_content_loot) ...
     
