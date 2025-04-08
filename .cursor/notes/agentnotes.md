@@ -12,36 +12,17 @@ The God Rotation Manager is a Streamlit-based application for managing the activ
 - Template management fully implemented and tested (save, load, delete)
 - Delete template functionality confirmed working (April 8, 2025)
 
-### Current State (End of Session, V1.3 COMPLETED)
-- Version tracking successfully implemented in UI and terminal output
-  - Version 1.3 set as current version
-  - Configuration loaded from app_config.json via src/config_utils.py
-  - Version displayed in terminal when launching via run_app.py
-  - Version displayed in UI title
-- Core workflow fully functional and tested: Welcome -> Config -> Selection -> Confirmation -> Processing -> Summary/Logs
-- APIs for fetching (`GET /vendor/{vid}`) and updating (`PUT /loot/{lid}`) god statuses are working with full data payload
-- **Batch Operations** working correctly:
-  - Save current god selections to JSON templates (`templates/` dir)
-  - Load god selections from saved JSON templates
-  - Delete saved JSON templates
-- **UI Improvements** completed:
-  - God list sorting (Name, Active Status)
-  - Check All / Uncheck All buttons
-  - Navigation buttons at top of Screen 3
-  - Dark mode toggle control with single-click activation
-  - Dark mode settings persist between screen navigation
-  - Load/Save/Delete Template UI grouped at top of Screen 3
-- **Safety Features** validated:
-  - Confirmation screen detailing changes (activating, deactivating, unchanged)
-- **Bug Fixes** completed:
-  - Update loop no longer re-runs erroneously on Screen 4
-  - Full loot data properly passed in update API calls
-  - Dark mode toggle now works with a single click
+### Current State (End of Session, V1.4.2 COMPLETED)
+- Completed search enhancements and bug fixes:
+  - **V1.4:** Added advanced search modes, status filtering, case sensitivity, recent search history, metrics dashboard, search persistence.
+  - **V1.4.1:** Initial fix for double-entry bug using form-based approach, added Clear Search button.
+  - **V1.4.2:** Final fix for search bug by removing forms and using direct widget callbacks for immediate search updates.
+- Core workflow remains fully functional with all previous features working correctly
 
 ### Next Steps
-- Ready to proceed to next phase of development
-- Core functionality is stable and user-tested
-- All planned features for version 1.3 have been implemented and verified
+- Complete any additional UI improvements for version 1.4
+- Test all search and filter functionality thoroughly
+- Consider additional enhancements for user experience
 
 ### Key Files
 - `god_rotation_manager.py`: Main application file.

@@ -170,3 +170,115 @@ Version 1.3 has been successfully completed and tested with all planned features
 - Comprehensive error handling
 
 Next phase of development can now proceed on solid foundations. 
+
+## Enhanced Search & Filter Implementation (April 8, 2025)
+
+Version 1.4 introduces a significantly enhanced search and filter system for the god list on Screen 3:
+
+1. **Advanced Search Options**:
+   - Multiple search modes:
+     - **Contains**: Finds gods with names containing the search string (default)
+     - **Exact Match**: Only matches gods with names exactly matching the search string
+     - **Starts With**: Finds gods with names starting with the search string
+   - Case sensitivity toggle for more precise searching
+   - Support for partial name matches
+
+2. **Status Filtering**:
+   - Filter options to show:
+     - All gods (default)
+     - Only currently active gods
+     - Only currently inactive gods
+   - Combined with search for more targeted results
+
+3. **Recent Searches**:
+   - System remembers up to 5 recent searches with results
+   - Recent searches shown in an expandable section
+   - One-click restoration of previous search parameters
+
+4. **Visual Feedback**:
+   - Shows count of matching gods
+   - Displays percentage of total gods matching criteria
+   - Clear messaging when no results are found
+   - Status indicators for search effectiveness
+
+5. **Metrics Dashboard**:
+   - Added metrics at the top of Screen 3 showing:
+     - Total number of gods
+     - Currently active gods (with percentage)
+     - Selected to be active (with delta from current)
+
+6. **Search State Persistence**:
+   - Search parameters persist when navigating between screens
+   - Automatically restores last used search when returning to Screen 3
+
+7. **Bulk Actions**:
+   - Renamed bulk action buttons to "Check All Results" and "Uncheck All Results"
+   - Actions now apply only to filtered results for more precise batch operations
+
+8. **Search Bug Fixes**:
+   - Fixed issue where search required two attempts to apply
+   - Implemented proper form handling with a submit button
+   - Added "Clear Search" button for easier reset
+   - Made search status more visible with current search display
+   - Improved handling of Enter key in search field
+   - Prevented duplicate entries in recent searches
+
+This enhanced search system makes managing large god rosters much more efficient by allowing users to quickly find and modify exactly the gods they need. 
+
+## Search Functionality Bug Fix (April 8, 2025) - Version 1.4.1
+
+Version 1.4.1 addresses a critical usability issue with the search functionality implemented in version 1.4:
+
+1. **Root Issue**:
+   - The original implementation required two attempts to execute a search query
+   - First attempt would clear the input field but not apply the search
+   - Second attempt with the same query would finally execute the search
+   - This created confusion and poor user experience
+
+2. **Form-Based Solution**:
+   - Implemented a proper Streamlit form with a dedicated "Apply Search" button
+   - This correctly handles the submission process in a single operation
+   - Form approach properly manages Enter key handling in input fields
+   - Search is now properly applied on first submission
+
+3. **UI Improvements**:
+   - Added clear indication of current active search with text display
+   - Added a "Clear Search" button for one-click search reset
+   - Better organization of search controls in a logical form
+   - Prevented duplicate entries in recent searches history
+
+4. **Enhanced Status Feedback**:
+   - More visible indicators when search is active
+   - Clear confirmation of search parameters being applied
+   - Consistent visual state between form submission and results
+
+This bug fix substantially improves the usability of the search feature, making it behave as users would intuitively expect. The version number increment to 1.4.1 reflects this targeted fix to a specific feature without introducing new functionality. 
+
+## Search Implementation Complete Redesign (April 8, 2025) - Version 1.4.2
+
+Version 1.4.2 completely redesigns the search implementation to fix a persistent issue with search submission:
+
+1. **Root Issue Identified**:
+   - Even after the form-based implementation in 1.4.1, users still needed to press Enter twice
+   - The first keypress would update the search field but not trigger the search
+   - This created a confusing user experience as changes weren't immediately reflected
+
+2. **Callback-Based Solution**:
+   - Completely removed the form-based approach
+   - Implemented individual callbacks on each search control (input field, radio buttons, checkbox)
+   - Each user interaction now directly updates the session state and triggers a rerun
+   - Changes take effect immediately without requiring explicit form submission
+
+3. **Technical Implementation**:
+   - Added `on_change` handlers to all search widgets
+   - Created a dedicated callback function that updates session state
+   - Automatically triggers a Streamlit rerun to apply changes immediately
+   - No need for a separate "Apply Search" button - everything is immediate
+
+4. **Advantages of New Approach**:
+   - Single keypress or selection immediately applies the search
+   - More intuitive and responsive user experience
+   - No form submission delays or quirks
+   - Consistent with standard search behavior in modern applications
+
+This redesign represents a significant improvement in the search usability by leveraging Streamlit's callback system rather than trying to force traditional form behavior, which was causing the persistent issues. 

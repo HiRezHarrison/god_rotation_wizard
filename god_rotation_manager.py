@@ -601,18 +601,155 @@ def render_screen3():
         # Check if god_selection exists, initialize if it was cleared or never set
         if 'god_selection' not in st.session_state:
              st.session_state.god_selection = {god['loot_id']: god.get('active', False) for god in st.session_state.god_list}
+        
+        # Add count indicators for total gods and selection stats
+        total_gods = len(st.session_state.god_list)
+        selected_count = sum(1 for v in st.session_state.god_selection.values() if v)
+        current_active_count = sum(1 for god in st.session_state.god_list if god.get('active', False))
+        
+        # Display counts in metrics at the top
+        st.write("## God Rotation Status")
+        cols = st.columns(3)
+        with cols[0]:
+            st.metric("Total Gods", total_gods)
+        with cols[1]:
+            st.metric("Currently Active", current_active_count, 
+                      delta=f"{(current_active_count/total_gods)*100:.1f}%" if total_gods > 0 else "0%")
+        with cols[2]:
+            # Show delta between new selection and current active
+            delta = selected_count - current_active_count
+            delta_text = f"+{delta}" if delta > 0 else str(delta) if delta < 0 else "No change"
+            st.metric("Selected to be Active", selected_count, delta=delta_text)
              
         st.write("Select which gods should be active in the rotation:")
         
-        # Add search functionality
-        search_query = st.text_input("Search gods by name:", placeholder="Type to filter gods...")
+        # Enhanced search functionality
+        st.subheader("Search and Filter Gods")
         
-        # Add sorting options
+        # Create two columns for search and filter options
+        search_col1, search_col2 = st.columns(2)
+        
+        # Check if we have a previous search to restore
+        last_search = st.session_state.get('last_search', {})
+        
+        # Create a direct search container instead of a form to avoid double-entry issue
+        # Get current search query from session state if exists, otherwise empty
+        default_query = last_search.get('query', '')
+        
+        with search_col1:
+            # Use callback to update search immediately
+            def on_search_change():
+                # Update the session state with the current search parameters
+                current_search = {
+                    'query': st.session_state.search_input,
+                    'mode': st.session_state.search_mode,
+                    'status': st.session_state.status_filter,
+                    'case_sensitive': st.session_state.case_sensitive
+                }
+                st.session_state.last_search = current_search
+                
+                # Save to recent searches if it has content
+                if st.session_state.search_input and st.session_state.search_input.strip():
+                    if 'recent_searches' not in st.session_state:
+                        st.session_state.recent_searches = []
+                    
+                    # Don't add duplicates
+                    if not any(s.get('query') == st.session_state.search_input for s in st.session_state.recent_searches):
+                        # Add to beginning of list
+                        st.session_state.recent_searches.insert(0, current_search)
+                        # Trim to 5 items
+                        st.session_state.recent_searches = st.session_state.recent_searches[:5]
+                
+                # Force a rerun to apply the search
+                st.rerun()
+            
+            # Create the search input with on_change callback
+            search_query = st.text_input(
+                "Search gods by name:", 
+                value=default_query,
+                placeholder="Type to filter gods...",
+                key="search_input",
+                on_change=on_search_change
+            )
+            
+            # Add search mode selection with default from last search
+            default_mode_index = 0  # Default to "Contains"
+            if 'mode' in last_search:
+                modes = ["Contains", "Exact Match", "Starts With"]
+                if last_search['mode'] in modes:
+                    default_mode_index = modes.index(last_search['mode'])
+            
+            search_mode = st.radio(
+                "Search mode:",
+                ["Contains", "Exact Match", "Starts With"],
+                horizontal=True,
+                index=default_mode_index,
+                key="search_mode",
+                on_change=on_search_change
+            )
+        
+        with search_col2:
+            # Add filter by status with default from last search
+            default_status_index = 0  # Default to "All Gods"
+            if 'status' in last_search:
+                statuses = ["All Gods", "Currently Active", "Currently Inactive"]
+                if last_search['status'] in statuses:
+                    default_status_index = statuses.index(last_search['status'])
+            
+            status_filter = st.radio(
+                "Filter by status:",
+                ["All Gods", "Currently Active", "Currently Inactive"],
+                horizontal=True,
+                index=default_status_index,
+                key="status_filter",
+                on_change=on_search_change
+            )
+            
+            # Add case sensitivity option with default from last search
+            default_case_sensitive = last_search.get('case_sensitive', False)
+            case_sensitive = st.checkbox(
+                "Case sensitive search", 
+                value=default_case_sensitive,
+                key="case_sensitive",
+                on_change=on_search_change
+            )
+        
+        # Move these outside the form
+        with search_col1:
+            # Display current search if active
+            if last_search.get('query'):
+                st.info(f"Current search: '{last_search.get('query')}' ({last_search.get('mode', 'Contains')})")
+                
+                # Add a clear search button
+                if st.button("Clear Search"):
+                    if 'last_search' in st.session_state:
+                        st.session_state.last_search = {}
+                    st.rerun()
+                
+        with search_col2:
+            # Show recent searches expander
+            if 'recent_searches' in st.session_state and st.session_state.recent_searches:
+                with st.expander("Recent Searches"):
+                    for i, search in enumerate(st.session_state.recent_searches):
+                        if st.button(f"{search['query']} ({search['mode']}, {search['status']})", key=f"recent_search_{i}"):
+                            # Apply this search
+                            st.session_state.last_search = search
+                            st.rerun()
+
+        # Add sorting options (outside form)
         sort_options = ["Name (A-Z)", "Name (Z-A)", "Currently Active First", "Currently Inactive First"]
         sort_method = st.selectbox("Sort gods by:", sort_options, index=0)
             
+        # Apply search filter and sorting
         # Sort the list based on selection
         gods = st.session_state.god_list.copy()
+        
+        # Get search parameters from session state
+        search_query = last_search.get('query', '')
+        search_mode = last_search.get('mode', 'Contains')
+        status_filter = last_search.get('status', 'All Gods')
+        case_sensitive = last_search.get('case_sensitive', False)
+        
         if sort_method == "Name (A-Z)":
             gods.sort(key=lambda x: get_god_name(x))
         elif sort_method == "Name (Z-A)":
@@ -622,41 +759,74 @@ def render_screen3():
         elif sort_method == "Currently Inactive First":
             gods.sort(key=lambda x: (x.get('active', False), get_god_name(x)))
         
+        # Filter gods by status
+        if status_filter == "Currently Active":
+            gods = [god for god in gods if god.get('active', False)]
+        elif status_filter == "Currently Inactive":
+            gods = [god for god in gods if not god.get('active', False)]
+        
         # Filter gods based on search query
         if search_query:
             filtered_gods = []
+            
+            # Apply case sensitivity setting
+            if not case_sensitive:
+                search_query = search_query.lower()
+            
             for god in gods:
-                god_name = get_god_name(god).lower()
-                if search_query.lower() in god_name:
+                god_name = get_god_name(god)
+                
+                # Apply case sensitivity setting
+                if not case_sensitive:
+                    god_name = god_name.lower()
+                
+                # Apply different search modes
+                match = False
+                if search_mode == "Contains":
+                    match = search_query in god_name
+                elif search_mode == "Exact Match":
+                    match = search_query == god_name
+                elif search_mode == "Starts With":
+                    match = god_name.startswith(search_query)
+                
+                if match:
                     filtered_gods.append(god)
+            
             gods = filtered_gods
             
-            # Show count of filtered results
+            # Show count of filtered results with better presentation
             if len(gods) == 0:
-                st.warning(f"No gods found matching '{search_query}'")
+                st.warning(f"No gods found matching '{search_query}' with the selected filters.")
             else:
-                st.success(f"Found {len(gods)} gods matching '{search_query}'")
-        
-        # Add Check/Uncheck All buttons
+                st.success(f"Found {len(gods)} gods matching your search criteria.")
+                
+                # Show percentage of total
+                percentage = (len(gods) / len(st.session_state.god_list)) * 100
+                st.info(f"Showing {percentage:.1f}% of all gods.")
+
+        # Remove the section with remembering last search
+        # since we now handle it in the form submission
+
+        # Add Check/Uncheck All and Recent Searches expander
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Check All Gods"):
-                for god in gods:  # Only apply to filtered gods if search is active
+            if st.button("Check All Results"):
+                for god in gods:  # Only apply to filtered gods
                     # Only update selection for gods currently in the list
                     if god['loot_id'] in st.session_state.god_selection:
                          st.session_state.god_selection[god['loot_id']] = True
                 st.rerun()
         with col2:
-            if st.button("Uncheck All Gods"):
-                for god in gods:  # Only apply to filtered gods if search is active
+            if st.button("Uncheck All Results"):
+                for god in gods:  # Only apply to filtered gods
                      # Only update selection for gods currently in the list
                      if god['loot_id'] in st.session_state.god_selection:
                           st.session_state.god_selection[god['loot_id']] = False
                 st.rerun()
         
         st.write("---")  # Separator
-        
-        # Create checkboxes for each god (No form needed anymore)
+
+        # Create checkboxes for each god
         # Make sure to use the current selection state
         current_selection = st.session_state.god_selection
         for god in gods:
@@ -677,7 +847,7 @@ def render_screen3():
                 value=current_selection.get(loot_id, False), # Use current selection value
                 key=f"god_{loot_id}" # Keep key for state persistence
             )
-            
+
     elif st.session_state.god_selection_error:
          # Error already displayed during fetch, maybe add button to retry?
          if st.button("Retry Fetching Gods"):
@@ -772,6 +942,7 @@ def render_screen3_confirm():
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Back to Selection", key="back_to_s3_confirm"):
+                # Don't clear search state when going back to selection
                 st.session_state.screen = 'screen3'
                 st.rerun()
         with col2:

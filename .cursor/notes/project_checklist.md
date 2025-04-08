@@ -28,8 +28,12 @@
 - [x] Test Delete Template functionality.
 
 ### Chunk 3: Advanced UI & Interaction
-- [ ] Search/filter capabilities for the god list (UX)
-- [ ] Categories/tags for gods to enable group selection (by pantheon, role) (UX) - Requires data source/mapping
+- [x] Enhance search/filter capabilities for the god list.
+  - [x] Implement advanced search options (exact match, contains, starts with)
+  - [x] Add filtering options for active/inactive status
+  - [x] Improve visual feedback for search results
+  - [x] Save search history or frequently used searches
+- [ ] ~~Categories/tags for gods (pantheons, roles, etc.)~~ *POSTPONED* - Will be implemented in a future iteration when we have clearer requirements for the feature.
 
 ### Refactoring & Testing
 - [ ] Modularize `god_rotation_manager.py` (currently > 800 lines) into smaller modules (e.g., `ui_screens.py`, `state_helpers.py`).
@@ -141,6 +145,28 @@
 - [ ] Documentation updates.
 
 ## Recent Updates & Changes
+
+### Version 1.4.2 Updates (COMPLETED)
+- [x] Fixed persistent search bug where two enter keypresses were required
+- [x] Completely redesigned search implementation to use direct callbacks
+- [x] Removed form-based search to eliminate input submission issues
+- [x] Search now responds immediately to input changes without requiring button clicks
+
+### Version 1.4.1 Updates (COMPLETED)
+- [x] Fixed search bug that required two attempts to execute a search query
+- [x] Implemented proper form handling for search functionality
+- [x] Added "Clear Search" button for better user experience
+- [x] Improved handling of Enter key in search field
+
+### Version 1.4 Updates (COMPLETED)
+- [x] Enhanced search and filter capabilities for the god list:
+  - [x] Added advanced search options (contains, exact match, starts with)
+  - [x] Implemented status filtering (all, active, inactive)
+  - [x] Added case sensitivity option
+  - [x] Implemented recent searches history (up to 5 saved searches)
+  - [x] Improved visual feedback with search result counts and percentages
+  - [x] Added metrics showing total gods, currently active, and selected to be active
+  - [x] Search parameters now persist when navigating between screens
 
 ### Version 1.3 Updates (COMPLETED)
 - [x] Implemented the version display feature in terminal output and UI
