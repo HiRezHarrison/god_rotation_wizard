@@ -19,6 +19,8 @@
 - [x] Remove `time.sleep(0.1)` from update loop (Performance)
 - [x] Investigate & Revert failed Batch Update attempt (API Limitation)
 - [x] Ability to delete saved templates (Batch Ops - V1.2 Addon)
+- [x] Implement template save/load functionality
+- [x] Add template deletion capability (**Tested and confirmed working**)
 
 ## Prioritized Features for Next Session
 

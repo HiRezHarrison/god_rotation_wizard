@@ -4,6 +4,14 @@
 
 The God Rotation Manager is a Streamlit-based application for managing the active status of gods in SMITE 2 via the RallyHere API.
 
+### Current State
+- Basic workflow is implemented with 4 screens
+- APIs for fetching and updating god statuses are working
+- UI improvements have been made (sorting, bulk actions, buttons at top)
+- Legacy files have been cleaned up (removed assets and chest_item_lists folders)
+- Template management fully implemented and tested (save, load, delete)
+- Delete template functionality confirmed working (April 8, 2025)
+
 ### Current State (End of Session, V1.2 Commit)
 - Core workflow implemented: Welcome -> Config -> Selection -> Confirmation -> Processing -> Summary/Logs.
 - APIs for fetching (`GET /vendor/{vid}`) and updating (`PUT /loot/{lid}`) god statuses are working.

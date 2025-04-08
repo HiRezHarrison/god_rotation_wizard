@@ -1010,8 +1010,6 @@ PS C:\Users\bharrison\Documents\Python\god_rotation_wizard>
 
 ---
 
-
-
 Setup complete! The `.cursor` directory and its subdirectories (`rules`, `tools`, `docs`, `notes`) are created. I've populated `tools` and `notes` with the standard files from the `mycursorrules` repository (except for `rules`, which was missing in the repo) and created the empty `project_checklist.md`, `notebook.md`, and `agentnotes.md`.
 
 Now, I will review the project's codebase, structure, and architecture. Since this appears to be a new project or an empty workspace, I'll list the contents of the root directory.
@@ -8380,6 +8378,431 @@ Okay, please fully document that within your ruleset and project information so 
 ---
 
 _**Assistant**_
+
+
+
+---
+
+I'll document our changes and prioritized features for tomorrow in the appropriate project files:
+
+---
+
+```diff
+  # Project Checklist: God Rotation Manager
++ 
++ ## Completed Tasks
++ - [x] Rename `chest_creation_wizard.py` to `god_rotation_manager.py` (and update `.code-workspace`)
++ - [x] Refactor the codebase to focus on God rotation management
++ - [x] Implement 4-screen workflow (Welcome, Configuration, God Selection, Processing)
++ - [x] Create the God Selection interface with sorting options
++ - [x] Implement Check All/Uncheck All functionality
++ - [x] Add detailed logging for API operations
++ - [x] Add download capability for logs
++ - [x] Fix UI navigation by adding buttons at the top of Screen 3
++ - [x] Ensure application works on first run with dependency checking
++ - [x] Clean up legacy files (chest_item_lists, assets)
++ 
++ ## Prioritized Features for Tomorrow
++ 
++ ### 1. Batch Operations
++ - [ ] Support for loading predefined god lists from JSON/CSV files
++ - [ ] Ability to save current selections as templates for future use
++ 
++ ### 2. User Experience Improvements
++ - [ ] Search/filter capabilities for the god list
++ - [ ] Categories/tags for gods to enable group selection (by pantheon, role)
++ - [ ] Dark mode toggle for UI
++ 
++ ### 3. Integration Options
++ - [ ] Simple REST API wrapper for programmatic access
++ - [ ] Slack/Discord notifications for rotation changes
++ 
++ ### 4. Safety Features
++ - [ ] Confirmation screen before processing large batches
++ - [ ] Preview mode for API payloads without submitting
++ - [ ] Rollback capability to revert to previous state
++ 
++ ### 5. Operational Enhancements
++ - [ ] Scheduled rotation changes (future date/time)
++ - [ ] Dockerize the application
++ - [ ] Health check endpoint
++ 
++ ## Technical Debt / Refactoring
++ - [ ] Add comprehensive inline code documentation
++ - [ ] Create unit tests for critical components
++ - [ ] Modularize the code further for maintainability
+  
+  ## Phase 1: Setup, Planning & Refactoring
+  - [x] Update `project_checklist.md` for new project direction.
+  - [ ] **Codebase Search:** Confirm `PUT /loot/:loot_id` usage in existing code.
+- - [ ] **Refactor:** Rename `chest_creation_wizard.py` to `god_rotation_manager.py` (and update `.code-workspace`).
+  - [ ] **Refactor:** Remove obsolete file parsing logic.
+  - [ ] **Refactor:** Remove obsolete chest creation logic/variables.
+```
+
+---
+
+```diff
+- # Agent Notes: god_rotation_wizard / chest_creation_wizard
+- 
+- ## Project Overview (Updated)
+- - **Goal**: **Manage the active status of Gods in SMITE 2 rotations via the RallyHere API.**
+- - **Core Functionality**: UI for input (Sandbox ID, Auth Token) and God selection/status display, sequential API calls (Get Vendor, Update Loot), logging.
+- - **Technology**: Python (likely Streamlit, TBC).
+- - **API Endpoint**: `https://developer.rallyhere.gg/api/` (Requires auth token).
+- - **Key Vendor ID**: `00000000-0000-0000-0000-00000000004e` (for God list).
+- 
+- ## Key Files/Directories (To Be Updated)
+- - **Rename:** `chest_creation_wizard.py` -> `god_rotation_manager.py` (Recommended).
+- - `src/`: Source code directory (API interaction module likely reusable).
+- - `tests/`: Test directory (needs updates).
+- - `config/`: Configuration (API docs added).
+- - `assets/`: UI assets (status icons reusable).
+- - ~~`chest_item_lists/`~~ (No longer needed).
+- - ~~`writeup.txt`~~ (Superseded by new requirements).
+- - `ui_outline.txt`: Needs significant updates for new Screens 1, 3, 4.
+- - `Requirements.txt`: Dependencies (review needed).
+- - `.cursor/`: Agent support files (rules, tools, docs, notes).
+- 
+- ## Initial Setup Notes
+- - `.cursor` directory created and populated with standard tools/notes from `mycursorrules` repo (rules folder was empty in repo).
+- - Key note files initialized: `project_checklist.md`, `notebook.md`, `agentnotes.md`.
+- 
+- ## Approach Guidance (Updated)
+- - **UI:**
+-     - Screen 1: Simplify - Intro text only.
+-     - Screen 2: Modify - Add Sandbox ID input.
+-     - Screen 3 (New): Fetch God list (`GET /vendor/:vendor_id`), display with checkboxes (default unchecked=deactivate).
+-     - Screen 4 (Old Screen 3): Adapt - Display progress of God LTI updates.
+- - **API:**
+-     - Get God List: `GET /api/v1/sandbox/:sandbox_id/vendor/:vendor_id` (using provided Vendor ID).
+-     - Update God Status: `PUT /api/v1/sandbox/:sandbox_id/loot/:loot_id` (likely adapting existing loot creation function, setting `active` flag).
+- - **Logic:**
+-     - Remove file parsing.
+-     - Implement new application flow.
+-     - Adapt logging.
+- - **Code Reuse:** Leverage existing API call structure and UI framework.
+- - Ensure secure handling of the user-provided auth token. 
++ # Agent Notes: God Rotation Manager
++ 
++ ## Project Status
++ 
++ The God Rotation Manager is a Streamlit-based application for managing the active status of gods in SMITE 2 via the RallyHere API.
++ 
++ ### Current State
++ - Basic workflow is implemented with 4 screens
++ - APIs for fetching and updating god statuses are working
++ - UI improvements have been made (sorting, bulk actions, buttons at top)
++ - Legacy files have been cleaned up (removed assets and chest_item_lists folders)
++ 
++ ### Key Files
++ - `god_rotation_manager.py`: Main application file
++ - `src/rallyhere_api.py`: API client for RallyHere
++ - `run_app.py`: Helper script with dependency handling
++ - `config/app_config.json`: Application configuration
++ - `config/api_template.json`: API templates
++ 
++ ### Configuration
++ - **APIs**: RallyHere developer API for fetching/updating gods
++ - **Sandbox ID**: `5641ab90-cbee-4460-ad6d-e3bc1545adb3` (default in config)
++ - **God Vendor ID**: `00000000-0000-0000-0000-00000000004e` (hardcoded)
++ 
++ ## Technical Details
++ 
++ ### Data Structure
++ - Gods are stored with complete loot data dictionaries
++ - Names are resolved using various possible field names (item_name, name, etc.)
++ - Updates require the full loot object with modified 'active' field
++ 
++ ### Known Issues
++ - Connectivity issues with Streamlit server occasionally require manual restarts
++ - Names may display as UUIDs if API doesn't provide name fields
++ - All gods should be loaded but testing is needed to confirm this
++ 
++ ## User Information
++ - Expected users: Team members managing god rotations for SMITE 2
++ - Users need RallyHere developer auth token with appropriate permissions
++ 
++ ## Next Steps
++ The following features have been prioritized for tomorrow:
++ 
++ 1. **Batch Operations**
++    - Loading predefined god lists from files
++    - Saving selection templates
++    
++ 2. **UI Improvements**
++    - Search/filter functionality
++    - Category-based grouping
++    - Dark mode
++    
++ 3. **Integration & Safety Features**
++    - REST API wrapper
++    - Confirmation screens
++    - Preview mode
++    - Rollback capability
++ 
++ See `.cursor/notes/project_checklist.md` for the complete list of prioritized features. 
+```
+
+---
+
+```diff
+-  
++ # God Rotation Manager - Development Notebook
++ 
++ ## Latest Updates (April 7, 2025)
++ 
++ ### UI Navigation Improvement
++ - Added navigation buttons to the top of Screen 3
++ - This eliminates the need to scroll through a long list of gods to navigate between screens
++ - Kept the form submit button at the bottom for logical flow
++ 
++ ### Dependencies and First-Run Experience
++ - Created `run_app.py` with proper dependency checking that runs before Streamlit
++ - The script first checks for and installs required packages, then launches Streamlit
++ - This solves the circular dependency problem where Streamlit was needed to run the app that would check if Streamlit was installed
++ - The script also handles port conflicts by automatically finding an available port
++ 
++ ### Cleanup and Optimization
++ - Removed legacy files and folders (chest_item_lists, assets) that were not needed for the god rotation functionality
++ - This reduces the codebase size and removes potential confusion
++ 
++ ## API Findings
++ 
++ ### God Data Structure
++ The API returns god data with these key fields:
++ - `loot_id`: Unique identifier (UUID format)
++ - `name`: The god's name (e.g., "Persephone")
++ - `item_name`: Sometimes contains the name, sometimes blank
++ - `active`: Boolean flag indicating if the god is in rotation
++ - Various other fields needed for the full PUT payload
++ 
++ To update a god's status, the entire object must be sent back with only the `active` field modified.
++ 
++ ### Name Resolution Strategy
++ Created a function to resolve god names by checking multiple potential fields:
++ ```python
++ def get_god_name(god):
++     for field in ['item_name', 'name', 'god_name', 'title', 'display_name', 'inventory_item_name']:
++         if field in god and god[field]:
++             return god[field]
++     return god['loot_id']  # Fallback
++ ```
++ 
++ ## Feature Ideas for Tomorrow
++ 
++ ### Batch Operations
++ Key considerations:
++ - Format for saved templates (JSON with loot_ids and desired states)
++ - UI for importing/exporting templates
++ - Validation to ensure loot_ids still exist
++ 
++ ### Search/Filter
++ Implementation ideas:
++ - Text search box above the god list
++ - Filter dropdowns for active/inactive status
++ - Pagination for better performance with large lists
++ 
++ ### Integration API
++ Potential endpoints:
++ - GET /api/gods - List all gods and their status
++ - POST /api/gods/update - Batch update multiple gods
++ - GET /api/templates - List saved templates
++ - Safety considerations for authentication 
+```
+
+---
+
+I've thoroughly documented today's changes and tomorrow's plans across the project's documentation files:
+
+1. **Project Checklist** - Updated with completed tasks and prioritized features for tomorrow
+   - Marked UI navigation buttons, dependency checking, and cleanup as completed
+   - Added prioritized features in categories for tomorrow's work
+
+2. **Agent Notes** - Updated with current project state, technical details, and next steps
+   - Documented the current state of the application
+   - Listed key files and configuration values
+   - Outlined known issues and user requirements
+   - Summarized prioritized features for tomorrow
+
+3. **Development Notebook** - Added detailed technical notes about today's work
+   - Documented the UI navigation improvement we just made
+   - Described the dependency management solution in run_app.py
+   - Captured API findings about god data structure
+   - Added implementation ideas for tomorrow's features
+
+These notes will ensure we have a complete record of the current state and planned features when we continue tomorrow. The prioritized features we'll tackle tomorrow include batch operations, improved UI with search/filtering and categorization, integration options, and safety features like confirmation screens and preview mode.
+
+---
+
+_**User**_
+
+Start Me Up
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I'll help you continue development on the God Rotation Manager project. Let me get up to speed by reviewing the project state and planned tasks.
+
+## Current Project Status
+
+The God Rotation Manager (V1.2) has these implemented features:
+- Complete workflow: Welcome → Config → Selection → Confirmation → Processing → Summary
+- God status management via RallyHere API
+- Batch operations (save/load/delete templates)
+- UI improvements (sorting, bulk actions, navigation buttons)
+- Confirmation screen with detailed change summary
+- Dark mode toggle (control only)
+- Dependency management via run_app.py
+
+## Immediate Action Items
+
+1. **Test Delete Template Functionality**
+   - This feature was added but needs validation
+
+2. **Search/Filter Implementation**
+   - Add search capabilities for the god list
+   - Potentially categorize gods by pantheon/role (if data available)
+
+3. **Code Refactoring**
+   - Begin modularizing god_rotation_manager.py (~800 lines)
+   - Set up basic unit tests
+   - Remove legacy chest_*.py files
+
+## Technical Considerations
+
+- The API supports individual god updates via PUT /loot/{lid}
+- Batch update attempts (POST /loot) failed with 409 conflicts
+- Performance optimizations removed sleep() delays between updates
+- Templates are stored as JSON in a templates/ directory
+
+Would you like me to start with testing the Delete Template functionality, or do you prefer I begin with another task?
+
+---
+
+_**User**_
+
+Let's run the script and I'll test the template delete before we start on chunk 3.  I'll run from terminal...
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+Sounds good! Once you run the script using `python run_app.py`, here's how to test the template delete functionality:
+
+1. Navigate to Screen 3 (God Selection)
+2. Make some selections (choose some gods to be active)
+3. Use the "Save Selection as Template" button
+4. Give your template a name when prompted
+5. Now test the delete function:
+   - Click "Load Template" to view the dropdown of available templates
+   - The "Delete Selected Template" button should appear next to the dropdown
+   - Select the template you just created
+   - Click "Delete Selected Template"
+   - Verify it disappears from the dropdown list
+   - Try loading another template to confirm the list updates correctly
+
+Let me know if you encounter any issues during testing, and we can fix them before moving on to the next set of features.
+
+---
+
+_**User**_
+
+Looks like it works perfectly.
+
+What features are in chunk 3 of the improvement plans?  Don't start them yet, just outline for me what the next planned steps are.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+# Chunk 3 - Planned Improvements
+
+## 1. Code Modularization & Cleanup
+- Split the large god_rotation_manager.py file into smaller modules
+- Create separate files for UI components, API interactions, and utilities
+- Remove remaining legacy files (src/chest_*.py)
+
+## 2. Integration Options
+- Build a simple REST API wrapper for programmatic access
+- Add notification capabilities (email or Slack/Discord webhooks)
+- Create a lightweight CLI interface for automation
+
+## 3. Advanced User Experience
+- Implement search/filter for gods by name/attribute
+- Add category-based grouping (pantheon, role) if data available
+- Complete dark mode implementation (currently toggle only)
+
+## 4. Operational Enhancements
+- Scheduled rotation changes (set future date/time)
+- Health check endpoint for monitoring
+- Logging improvements (rotation audit trail)
+
+## 5. Technical Improvements
+- Add unit and integration tests
+- Improve documentation (inline comments, API docs)
+- Containerization (Docker) support
+
+Would you like to prioritize any specific area within chunk 3 to focus on first?
+
+---
+
+_**User**_
+
+oooo, this is amazing.
+
+Before we begin.  Update your notes to say that the delete functionality has been tested and confirmed working.  Then I'll commit that to branch.  Then we'll discuss more before beginning chunk 3.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I'll update our documentation to reflect the successful testing of the template deletion feature:
+
+---
+
+```diff
+  - [x] Investigate & Revert failed Batch Update attempt (API Limitation)
+  - [x] Ability to delete saved templates (Batch Ops - V1.2 Addon)
++ - [x] Implement template save/load functionality
++ - [x] Add template deletion capability (**Tested and confirmed working**)
+  
+  ## Prioritized Features for Next Session
+```
+
+---
+
+```diff
+  - GET /api/templates - List saved templates
+  - Safety considerations for authentication 
++ 
++ ### Template Management Functionality Confirmed
++ - Tested the template deletion functionality - working as expected
++ - Complete template management flow now includes:
++   - Saving current god selections as named templates
++   - Loading templates to restore saved selections
++   - Deleting unwanted templates from the system
++   - Templates are stored as JSON files in the templates/ directory 
+```
+
+---
 
 
 
