@@ -12,30 +12,36 @@ The God Rotation Manager is a Streamlit-based application for managing the activ
 - Template management fully implemented and tested (save, load, delete)
 - Delete template functionality confirmed working (April 8, 2025)
 
-### Current State (End of Session, V1.2 Commit)
-- Core workflow implemented: Welcome -> Config -> Selection -> Confirmation -> Processing -> Summary/Logs.
-- APIs for fetching (`GET /vendor/{vid}`) and updating (`PUT /loot/{lid}`) god statuses are working.
-- **Batch Operations:**
-    - [x] Save current god selections to JSON templates (`templates/` dir).
-    - [x] Load god selections from saved JSON templates.
-    - [x] Delete saved JSON templates. (**NEEDS TESTING NEXT SESSION**)
-- **UI Improvements:**
-    - [x] God list sorting (Name, Active Status).
-    - [x] Check All / Uncheck All buttons.
-    - [x] Navigation buttons at top of Screen 3.
-    - [x] Dark mode toggle control added (visual theme not implemented).
-    - [x] Load/Save/Delete Template UI grouped at top of Screen 3.
-- **Safety Features:**
-    - [x] Confirmation screen detailing changes (activating, deactivating, unchanged).
-- **Bug Fixes:**
-    - [x] Update loop no longer re-runs erroneously on Screen 4.
-- **Performance:**
-    - [x] Removed `time.sleep(0.1)` delay between individual god updates.
-    - **Failed Attempt:** Batch update via `POST /loot` failed (409 Conflict, endpoint is for *creation*). Reverted to individual `PUT /loot/{lid}` calls. See Notebook for details.
-- **Code Structure:**
-    - Helper script (`run_app.py`) handles dependencies and launch.
-    - Some refactoring (`get_god_name`, `calculate_update_summary`).
-    - `god_rotation_manager.py` remains large (~800 lines).
+### Current State (End of Session, V1.3 COMPLETED)
+- Version tracking successfully implemented in UI and terminal output
+  - Version 1.3 set as current version
+  - Configuration loaded from app_config.json via src/config_utils.py
+  - Version displayed in terminal when launching via run_app.py
+  - Version displayed in UI title
+- Core workflow fully functional and tested: Welcome -> Config -> Selection -> Confirmation -> Processing -> Summary/Logs
+- APIs for fetching (`GET /vendor/{vid}`) and updating (`PUT /loot/{lid}`) god statuses are working with full data payload
+- **Batch Operations** working correctly:
+  - Save current god selections to JSON templates (`templates/` dir)
+  - Load god selections from saved JSON templates
+  - Delete saved JSON templates
+- **UI Improvements** completed:
+  - God list sorting (Name, Active Status)
+  - Check All / Uncheck All buttons
+  - Navigation buttons at top of Screen 3
+  - Dark mode toggle control with single-click activation
+  - Dark mode settings persist between screen navigation
+  - Load/Save/Delete Template UI grouped at top of Screen 3
+- **Safety Features** validated:
+  - Confirmation screen detailing changes (activating, deactivating, unchanged)
+- **Bug Fixes** completed:
+  - Update loop no longer re-runs erroneously on Screen 4
+  - Full loot data properly passed in update API calls
+  - Dark mode toggle now works with a single click
+
+### Next Steps
+- Ready to proceed to next phase of development
+- Core functionality is stable and user-tested
+- All planned features for version 1.3 have been implemented and verified
 
 ### Key Files
 - `god_rotation_manager.py`: Main application file.

@@ -108,3 +108,65 @@ Potential endpoints:
   - Loading templates to restore saved selections
   - Deleting unwanted templates from the system
   - Templates are stored as JSON files in the templates/ directory 
+
+## Version Tracking Implementation (April 8, 2025)
+
+Added version tracking throughout the application to better track releases and make it clear to users which version is running:
+
+1. **Configuration Storage**:
+   - Added `version` field to `config/app_config.json` (set to `1.3` for current release)
+   - This centralizes the version information in a single place
+
+2. **Configuration Loading**:
+   - Created `src/config_utils.py` to handle loading configuration
+   - Implemented a caching mechanism to avoid repeated file reads
+   - Added `get_version()` function to retrieve current version
+
+3. **Terminal Display**:
+   - Updated `run_app.py` to show version in startup banner
+   - Format: `=== SMITE 2 God Rotation Manager v1.3 ===`
+   - This makes it clear which version is running when starting from command line
+
+4. **UI Display**:
+   - Modified title in `god_rotation_manager.py` to include version
+   - Displayed as: `SMITE 2 God Rotation Manager v1.3`
+   - Removed hardcoded version from docstring to avoid duplication
+
+5. **Documentation Updates**:
+   - Updated checklist and agent notes to reflect current version (1.3)
+   - Documented version changes in project history
+
+This versioning system will make it easier to track changes across releases and ensure users are aware of which version they're using. Future updates should increment the version number in `app_config.json`. 
+
+## Dark Mode Implementation Fixes (April 8, 2025)
+
+The dark mode feature has been successfully implemented with the following improvements:
+
+1. **Single-Click Activation**:
+   - Fixed issue where toggle required two clicks to take effect
+   - Added state comparison between previous and current dark mode setting
+   - Implemented automatic page rerun when dark mode state changes
+   - Code: `if dark_mode != previous_dark_mode: st.rerun()`
+
+2. **Persistence Between Screens**:
+   - Dark mode setting now properly stored in `st.session_state.dark_mode`
+   - State persists across all screens in the application
+   - Consistent experience maintained throughout the workflow
+
+3. **Implementation Details**:
+   - Dark mode toggle uses Streamlit's `st.sidebar.toggle()` control
+   - CSS styling applied conditionally based on dark mode state
+   - Visual feedback shows current mode (enabled/disabled) in sidebar
+
+This implementation ensures a smooth user experience with dark mode that behaves consistently with user expectations. The toggle is responsive and the setting is maintained as users navigate through the application.
+
+## Version 1.3 Completion
+
+Version 1.3 has been successfully completed and tested with all planned features working correctly:
+- Version tracking throughout the application
+- Full god selection and update functionality
+- Template management (save, load, delete)
+- Dark mode with proper persistence
+- Comprehensive error handling
+
+Next phase of development can now proceed on solid foundations. 

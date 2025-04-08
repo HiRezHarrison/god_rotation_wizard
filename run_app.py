@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import socket
+from src.config_utils import get_version
 
 def is_port_in_use(port):
     """Check if a port is in use"""
@@ -77,7 +78,8 @@ def check_install_requirements(requirements_path="Requirements.txt"):
 
 def main():
     """Main entry point for the application"""
-    print("\n=== SMITE 2 God Rotation Manager ===\n")
+    version = get_version()
+    print(f"\n=== SMITE 2 God Rotation Manager v{version} ===\n")
     
     # First check and install dependencies
     if not check_install_requirements():

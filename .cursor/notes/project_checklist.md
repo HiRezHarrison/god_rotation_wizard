@@ -25,7 +25,7 @@
 ## Prioritized Features for Next Session
 
 ### Testing
-- [ ] Test Delete Template functionality.
+- [x] Test Delete Template functionality.
 
 ### Chunk 3: Advanced UI & Interaction
 - [ ] Search/filter capabilities for the god list (UX)
@@ -138,4 +138,23 @@
 ## Phase 5: Finalization
 - [ ] Code review and refactoring.
 - [ ] Final testing and bug fixing.
-- [ ] Documentation updates. 
+- [ ] Documentation updates.
+
+## Recent Updates & Changes
+
+### Version 1.3 Updates (COMPLETED)
+- [x] Implemented the version display feature in terminal output and UI
+  - Added version to app_config.json
+  - Created config_utils.py for loading configuration
+  - Updated run_app.py to show version in terminal
+  - Updated god_rotation_manager.py to display version in UI title
+- [x] Fixed Screen 4 implementation to use full loot data for API updates
+- [x] Enhanced the god selection screen (Screen 3) to store full loot dictionaries
+- [x] Improved error handling throughout the application
+- [x] Fixed dark mode toggle to work with a single click
+- [x] Ensured dark mode settings persist between screen navigation
+
+### Ready for Next Phase
+- Version 1.3 has been successfully tested and all features are working correctly
+- Core functionality is complete and stable
+- User interface is intuitive and responsive 

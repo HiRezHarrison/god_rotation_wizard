@@ -1,4 +1,5 @@
 {
+    "version": "1.3",
     "api": {
         "base_url": "https://developer.rallyhere.gg/api",
         "sandbox_id": "412abbcb-5f50-4072-b05f-a3c371087dba",

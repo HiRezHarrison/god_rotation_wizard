@@ -1,4 +1,23 @@
 #!/usr/bin/env python
+"""
+SMITE 2 God Rotation Manager
+============================
+
+A Streamlit application for managing the active status of gods in SMITE 2 
+via the RallyHere API. This tool allows authorized users to:
+
+1. View the complete list of gods available in SMITE 2
+2. View their current active/inactive status in the rotation
+3. Select which gods should be active/inactive
+4. Process updates in batch with detailed logging and status tracking
+5. Save and load selection templates for reuse
+
+The application works with the RallyHere API to fetch the current god list
+and update their active statuses.
+
+Author: God Rotation Wizard Team
+"""
+
 import subprocess
 import sys
 import os
@@ -8,6 +27,7 @@ import time
 import datetime
 import uuid
 import glob # Import glob for listing files
+from src.config_utils import get_version
 
 print("Script starting...")
 
@@ -23,7 +43,27 @@ if 'api_logs' not in st.session_state:
 # --- Helper Functions ---
 
 def log_api_call(operation, loot_id, request_data, response_data, success):
-    """Log API calls for later retrieval"""
+    """
+    Log API calls for later retrieval
+    
+    Parameters:
+    -----------
+    operation : str
+        The type of API operation being performed (e.g., "UPDATE_LOOT_STATUS")
+    loot_id : str or list
+        The loot ID being updated, or "BATCH" for batch operations
+    request_data : dict
+        The data sent in the API request
+    response_data : dict
+        The data received in the API response
+    success : bool
+        Whether the API call was successful
+        
+    Returns:
+    --------
+    dict
+        The log entry that was created and added to the session state
+    """
     timestamp = datetime.datetime.now().isoformat()
     # For batch calls, loot_id might be None or a list
     log_loot_id = loot_id if loot_id else "BATCH"
@@ -177,15 +217,68 @@ def main():
         print("Config loading failed, stopping execution")
         st.stop() # Stop execution if configs failed to load
 
+    # --- Apply Dark Mode if enabled ---
+    # Check if dark mode is enabled in session state
+    dark_mode = st.session_state.get("dark_mode", False)
+    
+    # Apply dark mode CSS if enabled
+    if dark_mode:
+        # Apply dark mode styles using CSS
+        st.markdown("""
+        <style>
+        .stApp {
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+        }
+        .stButton button {
+            background-color: #3D3D3D;
+            color: #FFFFFF;
+        }
+        .stTextInput input, .stSelectbox, .stTextArea textarea {
+            background-color: #2D2D2D;
+            color: #FFFFFF;
+        }
+        div.stCheckbox label, div[data-testid="stMarkdownContainer"] {
+            color: #FFFFFF;
+        }
+        div[data-testid="stSidebar"] {
+            background-color: #252525;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #FFFFFF;
+        }
+        .stAlert {
+            background-color: #323232;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     # --- Streamlit App Title & Sidebar ---
     print("Setting up Streamlit title and sidebar")
-    st.title("SMITE 2 God Rotation Manager")
+    version = get_version()
+    st.title(f"SMITE 2 God Rotation Manager v{version}")
     
     # Add Dark Mode Toggle to Sidebar
     st.sidebar.title("Options")
-    st.session_state.dark_mode = st.sidebar.toggle("Dark Mode", key="dark_mode_toggle", value=st.session_state.get("dark_mode", False))
-    # Note: Applying the theme based on this toggle requires Streamlit >= 1.20 and possibly config.toml setup or more complex logic.
-    # For now, this just adds the control.
+    
+    # Store previous dark mode state to detect changes
+    previous_dark_mode = st.session_state.get("dark_mode", False)
+    
+    # Create the toggle with the current value from session state
+    dark_mode = st.sidebar.toggle("Dark Mode", key="dark_mode_toggle", value=previous_dark_mode)
+    
+    # Store dark mode state in session state
+    st.session_state.dark_mode = dark_mode
+    
+    # Show a message about dark mode
+    if dark_mode:
+        st.sidebar.success("Dark mode enabled")
+    else:
+        st.sidebar.info("Dark mode disabled")
+        
+    # Force a rerun if dark mode state has changed to apply theme immediately
+    if dark_mode != previous_dark_mode:
+        st.rerun()
 
     # --- Screen Navigation Logic --- 
     if 'screen' not in st.session_state:
@@ -212,6 +305,12 @@ def main():
 
 # --- Screen Rendering Functions ---
 def render_screen1():
+    """
+    Render the welcome screen (Screen 1).
+    
+    This screen serves as an introduction to the application, explaining its purpose
+    and providing the user with a button to proceed to the configuration screen.
+    """
     print("Rendering screen 1")
     st.header("Screen 1: Welcome")
     st.write("This tool will help you to manage god rotations in SMITE 2.")
@@ -222,6 +321,18 @@ def render_screen1():
         st.rerun()
 
 def render_screen2():
+    """
+    Render the configuration screen (Screen 2).
+    
+    This screen collects the necessary credentials from the user:
+    - RallyHere Auth Token
+    - Sandbox ID
+    
+    These credentials are required for accessing the RallyHere API to fetch and update
+    god data. The screen includes validation to ensure the credentials are provided
+    before proceeding.
+    """
+    global app_config
     st.header("Screen 2: Configuration")
     
     # Initialize state if not present
@@ -229,7 +340,6 @@ def render_screen2():
         st.session_state.auth_token = ""
     if 'sandbox_id' not in st.session_state:
         # Use sandbox_id from config as default, if available
-        global app_config
         default_sandbox_id = app_config.get('api', {}).get('sandbox_id', "")
         st.session_state.sandbox_id = default_sandbox_id 
 
@@ -275,6 +385,20 @@ def render_screen2():
                     st.warning("Sandbox ID cannot be empty.")
 
 def render_screen3():
+    """
+    Render the god selection screen (Screen 3).
+    
+    This screen:
+    1. Fetches the list of gods from the RallyHere API
+    2. Displays gods with their names and current active status
+    3. Allows users to search and filter gods by name
+    4. Provides sorting options (alphabetical, by active status)
+    5. Includes bulk actions (Check All, Uncheck All)
+    6. Enables template management (save, load, delete templates)
+    7. Lets users select which gods should be active via checkboxes
+    
+    The user can then proceed to the confirmation screen or go back to configuration.
+    """
     print("Rendering screen 3")
     st.header("Screen 3: God Selection")
 
@@ -480,6 +604,9 @@ def render_screen3():
              
         st.write("Select which gods should be active in the rotation:")
         
+        # Add search functionality
+        search_query = st.text_input("Search gods by name:", placeholder="Type to filter gods...")
+        
         # Add sorting options
         sort_options = ["Name (A-Z)", "Name (Z-A)", "Currently Active First", "Currently Inactive First"]
         sort_method = st.selectbox("Sort gods by:", sort_options, index=0)
@@ -495,18 +622,33 @@ def render_screen3():
         elif sort_method == "Currently Inactive First":
             gods.sort(key=lambda x: (x.get('active', False), get_god_name(x)))
         
+        # Filter gods based on search query
+        if search_query:
+            filtered_gods = []
+            for god in gods:
+                god_name = get_god_name(god).lower()
+                if search_query.lower() in god_name:
+                    filtered_gods.append(god)
+            gods = filtered_gods
+            
+            # Show count of filtered results
+            if len(gods) == 0:
+                st.warning(f"No gods found matching '{search_query}'")
+            else:
+                st.success(f"Found {len(gods)} gods matching '{search_query}'")
+        
         # Add Check/Uncheck All buttons
         col1, col2 = st.columns(2)
         with col1:
             if st.button("Check All Gods"):
-                for god in gods:
+                for god in gods:  # Only apply to filtered gods if search is active
                     # Only update selection for gods currently in the list
                     if god['loot_id'] in st.session_state.god_selection:
                          st.session_state.god_selection[god['loot_id']] = True
                 st.rerun()
         with col2:
             if st.button("Uncheck All Gods"):
-                for god in gods:
+                for god in gods:  # Only apply to filtered gods if search is active
                      # Only update selection for gods currently in the list
                      if god['loot_id'] in st.session_state.god_selection:
                           st.session_state.god_selection[god['loot_id']] = False
@@ -550,6 +692,18 @@ def render_screen3():
 
 # --- New Confirmation Screen ---
 def render_screen3_confirm():
+    """
+    Render the confirmation screen (Screen 3b).
+    
+    This screen:
+    1. Summarizes the changes the user is about to make
+    2. Shows counts of gods being activated, deactivated, and unchanged
+    3. Provides detailed expandable lists of gods in each category
+    4. Allows the user to go back to the selection screen or proceed with updates
+    
+    This confirmation step ensures users understand the scope of changes before
+    submitting them to the API.
+    """
     st.header("Screen 3b: Confirm Updates")
 
     # Ensure required data exists
@@ -631,6 +785,20 @@ def render_screen3_confirm():
                 st.rerun()
 
 def render_screen4():
+    """
+    Render the processing updates screen (Screen 4).
+    
+    This screen:
+    1. Processes the requested god status updates by calling the RallyHere API
+    2. Shows a progress bar during the update process
+    3. Displays real-time status updates for each god being processed
+    4. Summarizes successful updates and any errors encountered
+    5. Provides options to view detailed logs or download them
+    6. Allows the user to start over when complete
+    
+    The screen handles the actual API calls to update god statuses and provides
+    comprehensive feedback on the results.
+    """
     st.header("Screen 4: Processing Updates")
 
     # Ensure required data exists in session state
