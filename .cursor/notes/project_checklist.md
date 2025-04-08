@@ -18,16 +18,20 @@
 - [x] Ability to load selections from templates (Batch Ops - Chunk 2)
 - [x] Remove `time.sleep(0.1)` from update loop (Performance)
 - [x] Investigate & Revert failed Batch Update attempt (API Limitation)
+- [x] Ability to delete saved templates (Batch Ops - V1.2 Addon)
 
 ## Prioritized Features for Next Session
+
+### Testing
+- [ ] Test Delete Template functionality.
 
 ### Chunk 3: Advanced UI & Interaction
 - [ ] Search/filter capabilities for the god list (UX)
 - [ ] Categories/tags for gods to enable group selection (by pantheon, role) (UX) - Requires data source/mapping
 
 ### Refactoring & Testing
-- [ ] Modularize `god_rotation_manager.py` (currently > 700 lines) into smaller modules (e.g., `ui_screens.py`, `state_helpers.py`).
-- [ ] Create unit tests for critical components (API client mocking, state logic).
+- [ ] Modularize `god_rotation_manager.py` (currently > 800 lines) into smaller modules (e.g., `ui_screens.py`, `state_helpers.py`).
+- [ ] Create unit tests for critical components (API client mocking, state logic, template functions).
 - [ ] Remove legacy code (`src/chest_*.py`).
 
 ### Optional / Polish
@@ -64,7 +68,7 @@
 ## Phase 3: UI Implementation (Complete for V1.2)
 - [x] Implement Screen 1 (Intro Text).
 - [x] Implement Screen 2 (Input: Auth Token, Sandbox ID).
-- [x] Implement Screen 3 (Fetch & Display God List, sorting, bulk ops, Save/Load Template).
+- [x] Implement Screen 3 (Fetch & Display God List, sorting, bulk ops, Save/Load/Delete Template).
 - [x] Implement Screen 3b (Confirmation Screen).
 - [x] Implement Screen 4 (Sequential Progress Display, Log Buttons, Start Over Button).
 - [x] Implement Sidebar (Dark Mode Toggle).
@@ -73,7 +77,7 @@
 - [ ] Set up/Adapt test framework (`tests/` directory).
 - [ ] Write unit tests for API interaction (mocking API calls).
 - [ ] Write unit tests for core God rotation logic.
-- [ ] Write unit tests for Save/Load Template functionality.
+- [ ] Write unit tests for Save/Load/Delete Template functionality.
 - [ ] Write integration tests for component interactions.
 - [ ] Write feature tests for UI and end-to-end workflow.
 

@@ -305,18 +305,23 @@ def render_screen3():
     template_files = glob.glob(os.path.join(TEMPLATES_DIR, "*.json"))
     template_names = [os.path.basename(f) for f in template_files]
     
-    load_cols = st.columns([3, 1])
+    # Add placeholder if no templates exist
+    display_options = ["-- Select a Template --"] + template_names
+    
+    load_cols = st.columns([2, 1, 1]) # Adjust column ratios for 3 buttons
     with load_cols[0]:
         selected_template = st.selectbox(
             "Select Template", 
-            options=[""] + template_names, # Add empty option
+            options=display_options, 
             index=0, 
             key="template_select",
             label_visibility="collapsed"
         )
     with load_cols[1]:
-        if st.button("Load Template", key="load_template"):
-            if selected_template:
+        # Disable Load button if no template selected
+        disable_load = selected_template == "-- Select a Template --"
+        if st.button("Load Template", key="load_template", disabled=disable_load):
+            if selected_template and selected_template != "-- Select a Template --": # Redundant check, but safe
                 filepath = os.path.join(TEMPLATES_DIR, selected_template)
                 try:
                     with open(filepath, 'r') as f:
@@ -355,11 +360,30 @@ def render_screen3():
                 except Exception as e:
                     st.error(f"Error loading template: {e}")
                     print(f"Error loading template '{selected_template}': {e}")
-            else:
-                st.warning("Please select a template to load.")
+            # No need for else, button is disabled
+            
+    # Add Delete Button
+    with load_cols[2]:
+        # Disable Delete button if no template selected
+        disable_delete = selected_template == "-- Select a Template --"
+        if st.button("Delete Template", key="delete_template", disabled=disable_delete, type="secondary"):
+            if selected_template and selected_template != "-- Select a Template --": # Redundant check
+                filepath = os.path.join(TEMPLATES_DIR, selected_template)
+                try:
+                    os.remove(filepath)
+                    st.success(f"Successfully deleted template '{selected_template}'.")
+                    # Clear selection in dropdown after delete? Optional, rerun handles refresh.
+                    # st.session_state.template_select = display_options[0] # Reset selectbox
+                    st.rerun()
+                except FileNotFoundError:
+                     st.error(f"Error: Template file '{selected_template}' not found.")
+                except Exception as e:
+                     st.error(f"Error deleting template '{selected_template}': {e}")
+                     print(f"Error deleting template '{selected_template}': {e}")
+            # No need for else, button is disabled
                 
     st.write("---")  # Separator
-    
+
     # --- Save Template Section (Moved Up) ---
     st.subheader("Save Current Selection")
     save_cols = st.columns([3, 1]) # Wider input, smaller button

@@ -2,6 +2,12 @@
 
 ## Latest Updates (April 8, 2025 - End of V1.2 Cycle)
 
+### Final Feature: Delete Template
+- Added a "Delete Template" button to Screen 3 next to the Load/Save controls.
+- This allows deletion of the currently selected template file from the `templates/` directory.
+- Includes basic error handling (file not found, permissions).
+- **Action Item:** This feature needs to be tested at the start of the next session.
+
 ### Chunk 2 Implementation & Revert
 - **Load Template:** Added functionality on Screen 3 to load a saved JSON template (`templates/` dir) using a dropdown and button. Updates the current `god_selection` state, respecting only `loot_id`s present in the currently fetched `god_list`.
 - **Batch Update Attempt:**
@@ -79,7 +85,7 @@ def get_god_name(god):
 
 ### Batch Operations
 Key considerations:
-- Format for saved templates (JSON with loot_ids and desired states) - [x] Save, [x] Load
+- Format for saved templates (JSON with loot_ids and desired states) - [x] Save, [x] Load, [x] Delete (Delete needs testing)
 - Validation to ensure loot_ids still exist - Handled during Load
 
 ### Search/Filter
